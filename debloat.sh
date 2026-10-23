@@ -362,7 +362,7 @@ do_install_launcher() { # [auto]
   say "Memasang home screen baru ke TV..."
   out="$("$ADB" -s "$SERIAL" install -r "$apk" 2>&1 | tr -d '\r')"
   case "$out" in
-    *Success*) ok "DebloitHome dipasang" ;;
+    *Success*) ok "LayanTv dipasang" ;;
     *) fail "$(printf '%s' "$out" | tail -n 1)"; return ;;
   esac
 
@@ -385,9 +385,9 @@ do_install_launcher() { # [auto]
   fi
 
   out="$(tv cmd package set-home-activity "$LAUNCHER_ACTIVITY")"
-  case "$out" in *Success*) ok "DebloitHome ditetapkan sebagai home" ;; *) info "Pilih DebloitHome jika TV tanya home mana nak guna." ;; esac
+  case "$out" in *Success*) ok "LayanTv ditetapkan sebagai home" ;; *) info "Pilih LayanTv jika TV tanya home mana nak guna." ;; esac
   tv am start -n "$LAUNCHER_ACTIVITY" --ez intro true >/dev/null
-  say ""; say "Siap! Tengok TV - intro Layan.OS sedang dimainkan."
+  say ""; say "Siap! Tengok TV - intro LayanTv sedang dimainkan."
 }
 
 do_intro() {
@@ -397,7 +397,7 @@ do_intro() {
     return
   fi
   tv am start -n "$LAUNCHER_ACTIVITY" --ez intro true >/dev/null
-  ok "Intro Layan.OS dimainkan di TV."
+  ok "Intro LayanTv dimainkan di TV."
 }
 
 do_remove_launcher() {
@@ -412,8 +412,8 @@ do_remove_launcher() {
 
   if in_list "$LAUNCHER_PKG" "$(pkgs_installed)"; then
     case "$(tv pm uninstall "$LAUNCHER_PKG")" in
-      *Success*) ok "DebloitHome dibuang" ;;
-      *) fail "Gagal buang DebloitHome" ;;
+      *Success*) ok "LayanTv dibuang" ;;
+      *) fail "Gagal buang LayanTv" ;;
     esac
   fi
   tv input keyevent KEYCODE_HOME >/dev/null
@@ -468,11 +468,11 @@ do_emergency() {
 # Setup penuh sekali jalan, untuk arahan dari laman web.
 do_auto() {
   say ""
-  say "================== Setup Layan.OS =================="
+  say "================== Setup LayanTv ==================="
   say " Skrip ini akan:"
   say "   1. Sambung ke TV anda"
   say "   2. Matikan bloatware & app iklan"
-  say "   3. Pasang home screen baru + intro Layan.OS"
+  say "   3. Pasang home screen baru + intro LayanTv"
   say " Semua boleh di-undo dari menu penuh."
   say "===================================================="
   ask_yes "Mula sekarang?" || { main_menu; return; }
@@ -483,7 +483,7 @@ do_auto() {
   do_install_launcher auto
   say ""
   say "===================================================="
-  say " Setup selesai! Selamat menonton dengan Layan.OS."
+  say " Setup selesai! Selamat menonton dengan LayanTv."
   say " Nak undo atau ubah? Jalankan semula:"
   say "   bash \"$DIR/debloat.sh\""
   say "===================================================="
@@ -503,7 +503,7 @@ main_menu() {
     say "  5) Buang home screen baru & kembali ke asal"
     say "  6) Imbas senarai app (untuk tanya AI)"
     say "  7) Pulih kecemasan"
-    say "  8) Main intro Layan.OS"
+    say "  8) Main intro LayanTv"
     say "  0) Keluar"
     read -r -p "Pilihan: " choice || exit 0
     case "$choice" in

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Debloit Home</string>
+    <string name="app_name" translatable="false">LayanTv</string>
     <string name="inputs">Inputs</string>
     <string name="settings">Settings</string>
     <string name="net_wifi">Wi-Fi</string>

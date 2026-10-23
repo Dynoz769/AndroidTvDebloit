@@ -4,7 +4,7 @@ Cuci TV Android anda yang penuh iklan dan lembab, guna komputer sahaja.
 
 - **Matikan bloatware** seperti app iklan, cadangan rancangan dan app Google yang tak digunakan.
 - **Tukar home screen** kepada gaya Apple TV yang minimalis dan tanpa iklan.
-- **Intro Layan.OS** dengan animasi penuh setiap kali TV dibuka.
+- **Intro LayanTv** dengan animasi penuh setiap kali TV dibuka.
 - **Percuma, tak perlu root, dan boleh undo.** Tiada app yang dipadam kekal. Semua perubahan direkod dalam folder `backup/`.
 
 Berfungsi untuk **Google TV** dan **Android TV** (Sony, TCL, Xiaomi, Sharp, Philips, Hisense, Chromecast, Mi Box dan lain-lain).
@@ -79,18 +79,18 @@ Masa pertama kali skrip bersambung ke TV, skrin TV akan bertanya *"Allow USB deb
 |----|------|------------------|
 | 1 | Sambung ke TV | Sambung ke TV melalui Wi-Fi. Skrip akan ingat IP TV untuk kali seterusnya. |
 | 2 | Cuci bloatware | Tunjuk senarai app yang akan dimatikan. Anda boleh pilih semua, atau pilih satu per satu. |
-| 3 | Pasang home screen baru | Pasang **Debloit Home** (gaya Apple TV). Skrip juga boleh matikan home asal supaya butang Home terus ke home baru. |
+| 3 | Pasang home screen baru | Pasang **LayanTv** (gaya Apple TV). Skrip juga boleh matikan home asal supaya butang Home terus ke home baru. |
 | 4 | Undo | Pulihkan app dari mana-mana backup. |
-| 5 | Buang home screen baru | Hidupkan semula home asal dan buang Debloit Home. |
+| 5 | Buang home screen baru | Hidupkan semula home asal dan buang LayanTv. |
 | 6 | Imbas senarai app | Simpan senarai semua app dalam TV ke fail `imbas-*.txt`, untuk ditanya kepada AI. |
 | 7 | Pulih kecemasan | Hidupkan semula semua app dalam senarai, walaupun folder backup sudah hilang. |
-| 8 | Main intro Layan.OS | Mainkan intro di TV sekarang, untuk tengok atau tunjuk kepada kawan. |
+| 8 | Main intro LayanTv | Mainkan intro di TV sekarang, untuk tengok atau tunjuk kepada kawan. |
 
 Cadangan untuk kali pertama: **1 → 2 → 3**.
 
 ---
 
-## Home screen baru (Debloit Home)
+## Home screen baru (LayanTv)
 
 - Jam besar dan tarikh di atas.
 - Butang **Inputs** (tukar ke HDMI), **Wi-Fi** dan **Settings**.
@@ -101,11 +101,11 @@ Cadangan untuk kali pertama: **1 → 2 → 3**.
 
 ![Semua app](docs/preview-semua-app.png)
 
-### Intro Layan.OS
+### Intro LayanTv
 
-Bila TV dibuka, home screen akan mainkan intro **Layan.OS — created by Dynoz**, sekitar 5 saat. Garis cahaya akan meluncur merentasi skrin, dan huruf logo menghentak masuk satu per satu. Lepas tu ada gegaran, gelombang kejutan, percikan api dan kilauan pada logo. Akhir sekali, intro *zoom* keluar dan home screen muncul.
+Bila TV dibuka, home screen akan mainkan intro **LayanTv — created by Dynoz**, sekitar 5 saat. Cahaya lembut muncul perlahan dari gelap, satu garis halus terlukis merentasi skrin, dan logo LayanTv muncul huruf demi huruf sambil jaraknya merapat. Lepas tu kilauan halus menyapu logo, tulisan "created by Dynoz" muncul, dan seluruh skrin pudar perlahan-lahan ke home screen.
 
-![Intro Layan.OS](docs/intro-layan-os.gif)
+![Intro LayanTv](docs/intro-layantv.gif)
 
 Bila intro dimainkan:
 - Kali pertama home screen muncul selepas TV dihidupkan.
@@ -170,8 +170,8 @@ Update sistem kadang-kadang menghidupkan semula app yang telah dimatikan. Kalau 
 - `web/` mengandungi laman web pemilih model (HTML, CSS dan JavaScript biasa, tanpa build). Laman ini diterbitkan ke GitHub Pages oleh workflow `pages.yml`.
   - `web/setup.sh` dan `web/setup.ps1` ialah pemasang satu-arahan yang dipanggil oleh laman web. Ia muat turun kit ke `~/AndroidTvDebloit` (atau `%USERPROFILE%\AndroidTvDebloit`), kemudian jalankan skrip dengan `--auto`.
   - Untuk tambah model TV baru, kemas kini senarai `BRANDS` dalam `web/app.js`. Untuk tambah senarai bloatware jenama, cipta `senarai/jenama-<profile>.txt`.
-- `launcher/` mengandungi kod sumber Debloit Home (Kotlin, minSdk 23). Intro dilukis frame demi frame dalam `IntroView.kt`.
-  - Font intro ialah [Orbitron](https://github.com/theleagueof/orbitron) (SIL Open Font License, lihat `launcher/app/src/main/assets/licenses/`).
+- `launcher/` mengandungi kod sumber LayanTv (Kotlin, minSdk 23). Intro dilukis frame demi frame dalam `IntroView.kt`.
+  - Font intro ialah [Cormorant Garamond](https://github.com/CatharsisFonts/Cormorant) dan [Jost](https://github.com/indestructible-type/Jost) (SIL Open Font License, lihat `launcher/app/src/main/assets/licenses/`).
   - Untuk bina sendiri: `cd launcher && ./gradlew assembleRelease`.
   - GitHub Actions akan bina APK setiap kali ada perubahan pada `launcher/` di branch `main`, dan terbitkan APK tersebut sebagai Release.
   - Kunci tandatangan `launcher/keystore/debloit.jks` sengaja dikongsi secara awam, supaya setiap binaan boleh dipasang di atas versi lama. Kalau anda *fork* projek ini untuk diedarkan, sila guna kunci anda sendiri.

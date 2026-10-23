@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Layan.OS - pemasang satu-arahan untuk Mac & Linux.
+# LayanTv - pemasang satu-arahan untuk Mac & Linux.
 # Muat turun Android TV Debloit ke ~/AndroidTvDebloit, kemudian jalankan setup penuh.
 #
 #   curl -fsSL https://raw.githubusercontent.com/Dynoz769/AndroidTvDebloit/main/web/setup.sh \
