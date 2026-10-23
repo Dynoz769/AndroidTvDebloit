@@ -1,18 +1,23 @@
 package io.github.dynoz769.debloithome
 
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.provider.Settings
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -26,6 +31,19 @@ class HomeActivity : Activity() {
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var focusedKey: String? = null
     private var focusFirstOnLoad = true
+
+    private var intro: IntroView? = null
+    private var introPending = false
+    private var resumed = false
+    private var wokeAt = 0L
+
+    // Most TVs only go to standby when switched off, so play the intro on wake too.
+    private val screenOnReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            wokeAt = SystemClock.elapsedRealtime()
+            if (resumed) playIntro()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,29 +71,69 @@ class HomeActivity : Activity() {
         findViewById<View>(R.id.chip_settings).setOnClickListener { openSettings(Settings.ACTION_SETTINGS) }
 
         watchNetwork()
+        ContextCompat.registerReceiver(
+            this, screenOnReceiver, IntentFilter(Intent.ACTION_SCREEN_ON), ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+        introPending = intent.getBooleanExtra(EXTRA_INTRO, false) || IntroGate.firstTimeThisBoot(this)
     }
 
     override fun onResume() {
         super.onResume()
+        resumed = true
         updateNetwork()
         repo.loadAsync { render() }
+        val justWoke = wokeAt > 0 && SystemClock.elapsedRealtime() - wokeAt < WAKE_WINDOW_MS
+        if (introPending || justWoke) playIntro()
+    }
+
+    override fun onPause() {
+        resumed = false
+        super.onPause()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Home pressed while already home: jump back to the first app.
-        focusPosition(0)
+        if (intent.getBooleanExtra(EXTRA_INTRO, false)) {
+            introPending = true
+        } else {
+            // Home pressed while already home: jump back to the first app.
+            focusPosition(0)
+        }
     }
 
     override fun onDestroy() {
         networkCallback?.let { connectivity().unregisterNetworkCallback(it) }
+        unregisterReceiver(screenOnReceiver)
         super.onDestroy()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val playing = intro ?: return super.dispatchKeyEvent(event)
+        // Any button skips the intro.
+        if (event.action == KeyEvent.ACTION_UP) playing.skip()
+        return true
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         // The home screen has nothing to go back to.
         if (keyCode == KeyEvent.KEYCODE_BACK) return true
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun playIntro() {
+        introPending = false
+        wokeAt = 0L
+        if (intro != null) return
+        val content = findViewById<ViewGroup>(android.R.id.content)
+        val view = IntroView(this)
+        view.onFinished = {
+            content.removeView(view)
+            intro = null
+            if (row.focusedChild == null) focusPosition(0)
+        }
+        content.addView(view, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        intro = view
+        view.start()
     }
 
     private fun render(focusKey: String? = null) {
@@ -177,5 +235,12 @@ class HomeActivity : Activity() {
         }
         networkChip.setText(label)
         networkChip.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, 0, 0, 0)
+    }
+
+    companion object {
+        /** Intent extra that asks the home screen to play the intro now. */
+        const val EXTRA_INTRO = "intro"
+
+        private const val WAKE_WINDOW_MS = 20_000L
     }
 }

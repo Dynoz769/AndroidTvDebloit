@@ -4,6 +4,7 @@ Cuci TV Android anda yang penuh iklan dan lembab, guna komputer sahaja.
 
 - **Matikan bloatware** seperti app iklan, cadangan rancangan dan app Google yang tak digunakan.
 - **Tukar home screen** kepada gaya Apple TV yang minimalis dan tanpa iklan.
+- **Intro Layan.OS** dengan animasi penuh setiap kali TV dibuka.
 - **Percuma, tak perlu root, dan boleh undo.** Tiada app yang dipadam kekal. Semua perubahan direkod dalam folder `backup/`.
 
 Berfungsi untuk **Google TV** dan **Android TV** (Sony, TCL, Xiaomi, Sharp, Philips, Hisense, Chromecast, Mi Box dan lain-lain).
@@ -73,6 +74,7 @@ Masa pertama kali skrip bersambung ke TV, skrin TV akan bertanya *"Allow USB deb
 | 5 | Buang home screen baru | Hidupkan semula home asal dan buang Debloit Home. |
 | 6 | Imbas senarai app | Simpan senarai semua app dalam TV ke fail `imbas-*.txt`, untuk ditanya kepada AI. |
 | 7 | Pulih kecemasan | Hidupkan semula semua app dalam senarai, walaupun folder backup sudah hilang. |
+| 8 | Main intro Layan.OS | Mainkan intro di TV sekarang, untuk tengok atau tunjuk kepada kawan. |
 
 Cadangan untuk kali pertama: **1 → 2 → 3**.
 
@@ -88,6 +90,21 @@ Cadangan untuk kali pertama: **1 → 2 → 3**.
 - Teks ikut bahasa TV, sama ada Bahasa Melayu atau English.
 
 ![Semua app](docs/preview-semua-app.png)
+
+### Intro Layan.OS
+
+Bila TV dibuka, home screen akan mainkan intro **Layan.OS — created by Dynoz**, sekitar 5 saat. Garis cahaya akan meluncur merentasi skrin, dan huruf logo menghentak masuk satu per satu. Lepas tu ada gegaran, gelombang kejutan, percikan api dan kilauan pada logo. Akhir sekali, intro *zoom* keluar dan home screen muncul.
+
+![Intro Layan.OS](docs/intro-layan-os.gif)
+
+Bila intro dimainkan:
+- Kali pertama home screen muncul selepas TV dihidupkan.
+- Bila TV bangun dari *standby*. Kebanyakan TV Android tak benar-benar dimatikan bila tekan butang power, sebaliknya masuk mod *standby*.
+- Bila anda pilih menu **8** dalam skrip.
+
+Tekan mana-mana butang pada remote untuk langkau intro.
+
+> Intro ini dimainkan oleh home screen, selepas Android selesai dimuatkan. Logo jenama TV dan animasi *boot* Android di awal tak boleh ditukar tanpa *root*.
 
 ---
 
@@ -139,7 +156,8 @@ Update sistem kadang-kadang menghidupkan semula app yang telah dimatikan. Kalau 
 ## Untuk developer
 
 - `debloat.sh` ialah skrip untuk Mac/Linux (bash), manakala `debloat.ps1` ialah skrip untuk Windows (PowerShell, dilancarkan oleh `debloat.bat`). Kedua-duanya buat perkara yang sama.
-- `launcher/` mengandungi kod sumber Debloit Home (Kotlin, minSdk 23).
+- `launcher/` mengandungi kod sumber Debloit Home (Kotlin, minSdk 23). Intro dilukis frame demi frame dalam `IntroView.kt`.
+  - Font intro ialah [Orbitron](https://github.com/theleagueof/orbitron) (SIL Open Font License, lihat `launcher/app/src/main/assets/licenses/`).
   - Untuk bina sendiri: `cd launcher && ./gradlew assembleRelease`.
   - GitHub Actions akan bina APK setiap kali ada perubahan pada `launcher/` di branch `main`, dan terbitkan APK tersebut sebagai Release.
   - Kunci tandatangan `launcher/keystore/debloit.jks` sengaja dikongsi secara awam, supaya setiap binaan boleh dipasang di atas versi lama. Kalau anda *fork* projek ini untuk diedarkan, sila guna kunci anda sendiri.

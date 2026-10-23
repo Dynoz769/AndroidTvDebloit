@@ -374,8 +374,18 @@ do_install_launcher() {
 
   out="$(tv cmd package set-home-activity "$LAUNCHER_ACTIVITY")"
   case "$out" in *Success*) ok "DebloitHome ditetapkan sebagai home" ;; *) info "Pilih DebloitHome jika TV tanya home mana nak guna." ;; esac
-  tv input keyevent KEYCODE_HOME >/dev/null
-  say ""; say "Siap! Tekan butang Home pada remote."
+  tv am start -n "$LAUNCHER_ACTIVITY" --ez intro true >/dev/null
+  say ""; say "Siap! Tengok TV - intro Layan.OS sedang dimainkan."
+}
+
+do_intro() {
+  require_tv || return
+  if ! in_list "$LAUNCHER_PKG" "$(pkgs_installed)"; then
+    fail "Home screen baru belum dipasang. Pilih menu 3 dulu."
+    return
+  fi
+  tv am start -n "$LAUNCHER_ACTIVITY" --ez intro true >/dev/null
+  ok "Intro Layan.OS dimainkan di TV."
 }
 
 do_remove_launcher() {
@@ -457,6 +467,7 @@ main_menu() {
     say "  5) Buang home screen baru & kembali ke asal"
     say "  6) Imbas senarai app (untuk tanya AI)"
     say "  7) Pulih kecemasan"
+    say "  8) Main intro Layan.OS"
     say "  0) Keluar"
     read -r -p "Pilihan: " choice || exit 0
     case "$choice" in
@@ -467,6 +478,7 @@ main_menu() {
       5) do_remove_launcher ;;
       6) do_scan ;;
       7) do_emergency ;;
+      8) do_intro ;;
       0|q|Q) exit 0 ;;
       *) say "Pilihan tak sah." ;;
     esac

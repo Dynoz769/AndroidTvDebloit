@@ -384,8 +384,18 @@ function Do-InstallLauncher {
     $out = Tv "cmd package set-home-activity $LauncherActivity"
     if ($out -match 'Success') { Ok 'DebloitHome ditetapkan sebagai home' }
     else { Info 'Pilih DebloitHome jika TV tanya home mana nak guna.' }
-    Tv 'input keyevent KEYCODE_HOME' | Out-Null
-    Say ''; Say 'Siap! Tekan butang Home pada remote.'
+    Tv "am start -n $LauncherActivity --ez intro true" | Out-Null
+    Say ''; Say 'Siap! Tengok TV - intro Layan.OS sedang dimainkan.'
+}
+
+function Do-Intro {
+    if (-not (Require-Tv)) { return }
+    if ((Get-Packages) -notcontains $LauncherPkg) {
+        Fail 'Home screen baru belum dipasang. Pilih menu 3 dulu.'
+        return
+    }
+    Tv "am start -n $LauncherActivity --ez intro true" | Out-Null
+    Ok 'Intro Layan.OS dimainkan di TV.'
 }
 
 function Do-RemoveLauncher {
@@ -477,6 +487,7 @@ while ($true) {
     Say '  5) Buang home screen baru & kembali ke asal'
     Say '  6) Imbas senarai app (untuk tanya AI)'
     Say '  7) Pulih kecemasan'
+    Say '  8) Main intro Layan.OS'
     Say '  0) Keluar'
     $choice = Read-Host 'Pilihan'
     switch ($choice) {
@@ -487,6 +498,7 @@ while ($true) {
         '5' { Do-RemoveLauncher }
         '6' { Do-Scan }
         '7' { Do-Emergency }
+        '8' { Do-Intro }
         '0' { exit 0 }
         default { Say 'Pilihan tak sah.' }
     }
