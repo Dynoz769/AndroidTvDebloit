@@ -1,0 +1,16 @@
+# Senarai UMUM - untuk semua Google TV / Android TV.
+#
+# Format setiap baris:   nama.pakej    # penerangan
+# - App yang tiada dalam TV anda akan dilangkau secara automatik.
+# - Semua yang dimatikan disimpan dalam folder backup/ dan boleh di-undo.
+# - Senarai ini sengaja dibuat "selamat": hanya app yang tak diperlukan
+#   untuk TV berfungsi (tiada servis Google Play, tiada input HDMI, dsb).
+
+com.google.android.tvrecommendations                  # Cadangan & iklan rancangan di home Android TV
+com.google.android.leanbacklauncher.recommendations   # Cadangan home (Android TV versi lama)
+com.google.android.videos                             # Google TV / Play Movies (kedai filem Google)
+com.google.android.play.games                         # Google Play Games
+com.google.android.music                              # Google Play Music (dah ditutup oleh Google)
+com.google.android.feedback                           # Hantar maklum balas ke Google
+com.google.android.tv.bugreportsender                 # Penghantar laporan bug
+com.android.printspooler                              # Servis printer (TV tak perlu)

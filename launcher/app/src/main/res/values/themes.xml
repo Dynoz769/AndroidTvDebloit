@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DebloitHome" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_home</item>
+        <item name="android:windowShowWallpaper">false</item>
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+
+    <style name="Clock">
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">88sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="DateText">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginStart">4dp</item>
+    </style>
+
+    <style name="Chip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:background">@drawable/bg_chip</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:drawableTint">@color/chip_text</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="FocusedTitle">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">34sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="PageTitle">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">34sp</item>
+    </style>
+
+    <style name="Hint">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+</resources>

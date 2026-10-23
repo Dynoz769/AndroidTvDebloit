@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_margin">48dp</dimen>
+    <dimen name="tile_width">200dp</dimen>
+    <dimen name="tile_height">112dp</dimen>
+    <dimen name="tile_gap">20dp</dimen>
+    <dimen name="tile_radius">12dp</dimen>
+    <!-- Row padding (16dp) + tile + gap, with room for the focus zoom. -->
+    <dimen name="row_height">152dp</dimen>
+</resources>

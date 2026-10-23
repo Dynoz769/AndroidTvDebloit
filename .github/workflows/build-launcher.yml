@@ -1,0 +1,55 @@
+name: Bina DebloitHome
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "launcher/**"
+      - ".github/workflows/build-launcher.yml"
+  pull_request:
+    paths:
+      - "launcher/**"
+      - ".github/workflows/build-launcher.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: launcher
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Bina APK
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Namakan APK
+        run: cp app/build/outputs/apk/release/app-release.apk ../DebloitHome.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DebloitHome
+          path: DebloitHome.apk
+
+      # Skrip debloat muat turun APK dari release terbaru.
+      - name: Terbitkan release
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v1.0.${{ github.run_number }}" ../DebloitHome.apk \
+            --title "DebloitHome v1.0.${{ github.run_number }}" \
+            --notes "Home screen gaya Apple TV untuk Android TV / Google TV. Pasang melalui menu 3 dalam debloat.sh / debloat.bat." \
+            --latest

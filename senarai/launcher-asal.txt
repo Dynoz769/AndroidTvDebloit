@@ -1,0 +1,9 @@
+# Home screen (launcher) asal TV.
+# Dimatikan HANYA bila anda pasang home screen baru dan setuju untuk
+# matikan home asal. Menu "Buang home screen baru" akan hidupkan semula.
+
+com.google.android.apps.tv.launcherx                  # Home Google TV (yang penuh iklan)
+com.google.android.tungsten.setupwraith               # Home ganti Google TV (perlu dimatikan bersama launcherx)
+com.google.android.tvlauncher                         # Home Android TV
+com.google.android.leanbacklauncher                   # Home Android TV versi lama
+com.mitv.tvhome                                       # PatchWall (Xiaomi)
