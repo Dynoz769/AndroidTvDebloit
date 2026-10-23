@@ -1,4 +1,4 @@
-# Layan.OS - pemasang satu-arahan untuk Windows.
+# LayanTv - pemasang satu-arahan untuk Windows.
 # Muat turun Android TV Debloit ke %USERPROFILE%\AndroidTvDebloit, kemudian jalankan setup penuh.
 #
 #   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Dynoz769/AndroidTvDebloit/main/web/setup.ps1))) -Jenama sony -Ip 192.168.1.20

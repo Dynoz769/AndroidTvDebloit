@@ -1,4 +1,4 @@
-// Layan.OS setup page: pick a TV model, get tailored steps and one command
+// LayanTv setup page: pick a TV model, get tailored steps and one command
 // that runs the Android TV Debloit setup from a computer.
 
 const RAW = "https://raw.githubusercontent.com/Dynoz769/AndroidTvDebloit/main/web";
@@ -89,7 +89,7 @@ const BRANDS = [
       { id: "apple-tv", name: "Apple TV", years: "tvOS", type: "unsupported" },
       {
         id: "fire-tv", name: "Amazon Fire TV", years: "Fire OS", type: "unsupported",
-        why: "Fire TV berasaskan Android, tetapi home screen dan app sistemnya berbeza. Layan.OS belum menyokong Fire TV.",
+        why: "Fire TV berasaskan Android, tetapi home screen dan app sistemnya berbeza. LayanTv belum menyokong Fire TV.",
       },
     ],
   },
@@ -184,7 +184,7 @@ function renderSteps() {
   $("tv-steps").hidden = !supported;
 
   if (!supported) {
-    const why = m.why || `${m.name} guna ${m.years}, bukan Android. Layan.OS hanya berfungsi pada Google TV dan Android TV.`;
+    const why = m.why || `${m.name} guna ${m.years}, bukan Android. LayanTv hanya berfungsi pada Google TV dan Android TV.`;
     $("unsupported").innerHTML = `<h3>Maaf, TV ini tak disokong</h3><p>${why}</p>`;
     return;
   }
@@ -233,10 +233,10 @@ function renderRun() {
 }
 
 function downloadBat() {
-  const name = state.model ? `setup-layanos-${state.model.id}.bat` : "setup-layanos.bat";
+  const name = state.model ? `setup-layantv-${state.model.id}.bat` : "setup-layantv.bat";
   const bat = [
     "@echo off",
-    "title Layan.OS Setup",
+    "title LayanTv Setup",
     `powershell -NoProfile -ExecutionPolicy Bypass -Command "${windowsCommand()}"`,
     "pause",
     "",

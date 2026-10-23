@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Near-black with a deep red glow from the lower left, like the Apple TV look. -->
+<!-- Near-black with a soft champagne light from the upper left. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <color android:color="@color/background" />
@@ -7,12 +7,12 @@
     <item>
         <shape>
             <gradient
-                android:centerX="0.0"
-                android:centerY="0.8"
-                android:endColor="#000A0A0C"
-                android:centerColor="#80500A14"
-                android:gradientRadius="115%p"
-                android:startColor="#FF8E1324"
+                android:centerX="0.1"
+                android:centerY="0.05"
+                android:endColor="#0008090B"
+                android:centerColor="#2E2A2620"
+                android:gradientRadius="110%p"
+                android:startColor="#663D3830"
                 android:type="radial" />
         </shape>
     </item>

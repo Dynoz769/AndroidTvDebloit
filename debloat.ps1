@@ -383,7 +383,7 @@ function Do-InstallLauncher([switch]$Auto) {
     }
     Say 'Memasang home screen baru ke TV...'
     $out = Invoke-Adb @('-s', $script:Serial, 'install', '-r', $LauncherApk)
-    if ($out -match 'Success') { Ok 'DebloitHome dipasang' } else { Fail (Last-Line $out); return }
+    if ($out -match 'Success') { Ok 'LayanTv dipasang' } else { Fail (Last-Line $out); return }
 
     $enabled = Get-Packages '-e'
     $stock = @(Read-List (Join-Path $ListDir 'launcher-asal.txt') | Where-Object { $enabled -contains $_.Pkg })
@@ -399,10 +399,10 @@ function Do-InstallLauncher([switch]$Auto) {
     }
 
     $out = Tv "cmd package set-home-activity $LauncherActivity"
-    if ($out -match 'Success') { Ok 'DebloitHome ditetapkan sebagai home' }
-    else { Info 'Pilih DebloitHome jika TV tanya home mana nak guna.' }
+    if ($out -match 'Success') { Ok 'LayanTv ditetapkan sebagai home' }
+    else { Info 'Pilih LayanTv jika TV tanya home mana nak guna.' }
     Tv "am start -n $LauncherActivity --ez intro true" | Out-Null
-    Say ''; Say 'Siap! Tengok TV - intro Layan.OS sedang dimainkan.'
+    Say ''; Say 'Siap! Tengok TV - intro LayanTv sedang dimainkan.'
 }
 
 function Do-Intro {
@@ -412,7 +412,7 @@ function Do-Intro {
         return
     }
     Tv "am start -n $LauncherActivity --ez intro true" | Out-Null
-    Ok 'Intro Layan.OS dimainkan di TV.'
+    Ok 'Intro LayanTv dimainkan di TV.'
 }
 
 function Do-RemoveLauncher {
@@ -428,8 +428,8 @@ function Do-RemoveLauncher {
     if (-not $found) { Info 'Tiada home asal yang perlu dipulihkan.' }
 
     if ((Get-Packages) -contains $LauncherPkg) {
-        if ((Tv "pm uninstall $LauncherPkg") -match 'Success') { Ok 'DebloitHome dibuang' }
-        else { Fail 'Gagal buang DebloitHome' }
+        if ((Tv "pm uninstall $LauncherPkg") -match 'Success') { Ok 'LayanTv dibuang' }
+        else { Fail 'Gagal buang LayanTv' }
     }
     Tv 'input keyevent KEYCODE_HOME' | Out-Null
     Say 'Siap. TV kembali guna home screen asal.'
@@ -495,11 +495,11 @@ function Do-Emergency {
 # Setup penuh sekali jalan, untuk arahan dari laman web.
 function Do-Auto {
     Say ''
-    Say '================== Setup Layan.OS =================='
+    Say '================== Setup LayanTv ==================='
     Say ' Skrip ini akan:'
     Say '   1. Sambung ke TV anda'
     Say '   2. Matikan bloatware & app iklan'
-    Say '   3. Pasang home screen baru + intro Layan.OS'
+    Say '   3. Pasang home screen baru + intro LayanTv'
     Say ' Semua boleh di-undo dari menu penuh.'
     Say '===================================================='
     if (-not (Ask-Yes 'Mula sekarang?')) { Show-Menu; return }
@@ -510,7 +510,7 @@ function Do-Auto {
     Do-InstallLauncher -Auto
     Say ''
     Say '===================================================='
-    Say ' Setup selesai! Selamat menonton dengan Layan.OS.'
+    Say ' Setup selesai! Selamat menonton dengan LayanTv.'
     Say ' Nak undo atau ubah? Klik dua kali fail ini:'
     Say "   $(Join-Path $Dir 'debloat.bat')"
     Say '===================================================='
@@ -529,7 +529,7 @@ function Show-Menu {
         Say '  5) Buang home screen baru & kembali ke asal'
         Say '  6) Imbas senarai app (untuk tanya AI)'
         Say '  7) Pulih kecemasan'
-        Say '  8) Main intro Layan.OS'
+        Say '  8) Main intro LayanTv'
         Say '  0) Keluar'
         $choice = Read-Host 'Pilihan'
         switch ($choice) {

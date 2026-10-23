@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Home screen tile for Debloit Home itself (320x180). -->
+<!-- Home screen tile for LayanTv itself (320x180). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="320dp"
     android:height="180dp"
     android:viewportWidth="320"
     android:viewportHeight="180">
     <path
-        android:fillColor="#FF0A0A0C"
+        android:fillColor="#FF08090B"
         android:pathData="M0,0h320v180h-320z" />
     <path
-        android:fillColor="#FF4A0A13"
+        android:fillColor="#FF1E1C18"
         android:pathData="M0,60a150,150 0,0 1,170 120h-170z" />
     <path
-        android:fillColor="#FF8A1222"
+        android:fillColor="#FF3A352B"
         android:pathData="M0,110a90,90 0,0 1,100 70h-100z" />
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="#FFF7F3EA"
         android:pathData="M118,52h84a6,6 0,0 1,6 6v50a6,6 0,0 1,-6 6h-84a6,6 0,0 1,-6 -6v-50a6,6 0,0 1,6 -6zM120,60v46h80v-46zM140,124h40v6h-40z" />
 </vector>
