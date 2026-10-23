@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Layan.OS – Setup TV Android</title>
+  <meta name="description" content="Pilih model TV anda dan setup dalam beberapa minit: buang iklan & bloatware, home screen gaya Apple TV, intro Layan.OS. Percuma, tanpa root, boleh undo.">
+  <meta name="theme-color" content="#0a0a0c">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="#" aria-label="Layan.OS">Layan<span>.OS</span></a>
+    <a class="topbar-link" href="https://github.com/Dynoz769/AndroidTvDebloit" rel="noopener">GitHub</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Untuk Google TV &amp; Android TV</p>
+        <h1>TV anda, tanpa iklan.<br>Dalam beberapa minit.</h1>
+        <p class="lede">Pilih model TV anda, ikut 3 langkah, dan Layan.OS akan buang bloatware, pasang home screen gaya Apple TV, dan mainkan intro setiap kali TV dibuka.</p>
+        <ul class="ticks">
+          <li>Percuma</li>
+          <li>Tanpa root</li>
+          <li>Boleh undo bila-bila masa</li>
+        </ul>
+        <a class="button primary" href="#langkah-1">Mula sekarang</a>
+      </div>
+      <figure class="tv">
+        <div class="tv-screen">
+          <img src="docs/intro-layan-os.gif" alt="Animasi intro Layan.OS: logo menghentak masuk dengan percikan cahaya merah" width="480" height="270">
+        </div>
+        <div class="tv-stand" aria-hidden="true"></div>
+      </figure>
+    </section>
+
+    <section class="step" id="langkah-1" aria-labelledby="h-langkah-1">
+      <div class="step-head">
+        <span class="step-num">1</span>
+        <div>
+          <h2 id="h-langkah-1">Pilih TV anda</h2>
+          <p class="muted">Tak pasti? Lihat home screen TV: kalau ada tab <b>For you / Untuk anda</b> di atas, itu <b>Google TV</b>. Kalau ada barisan app dan <b>Play Next</b>, itu <b>Android TV</b>.</p>
+        </div>
+      </div>
+
+      <div class="picker">
+        <label class="search">
+          <span class="visually-hidden">Cari model TV</span>
+          <input id="search" type="search" placeholder="Cari jenama atau model, contoh: Sony, TCL, Mi Box" autocomplete="off">
+        </label>
+        <div class="chips" id="brand-chips" role="group" aria-label="Tapis ikut jenama"></div>
+        <div class="models" id="models"></div>
+        <p class="empty muted" id="no-results" hidden>Tiada padanan. Cuba pilih <b>Google TV lain</b> atau <b>Android TV lain</b> di bawah jenama "Lain-lain".</p>
+      </div>
+    </section>
+
+    <section class="step is-locked" id="langkah-2" aria-labelledby="h-langkah-2">
+      <div class="step-head">
+        <span class="step-num">2</span>
+        <div>
+          <h2 id="h-langkah-2">Hidupkan USB debugging di TV</h2>
+          <p class="muted" id="selected-tv">Pilih TV anda dahulu.</p>
+        </div>
+      </div>
+      <div class="unsupported-panel" id="unsupported" hidden></div>
+      <div class="cols" id="tv-steps">
+        <div class="card">
+          <h3>Buka mod developer</h3>
+          <ol id="dev-steps"></ol>
+          <p class="note" id="dev-note" hidden></p>
+        </div>
+        <div class="card">
+          <h3>Cari alamat IP TV</h3>
+          <ol>
+            <li>Buka <b>Settings → Network &amp; Internet</b>.</li>
+            <li>Pilih Wi-Fi (atau Ethernet) yang sedang disambung.</li>
+            <li>Catat <b>IP address</b>, contoh <code>192.168.1.20</code>.</li>
+          </ol>
+          <label class="field">
+            <span>IP TV anda <span class="muted">(pilihan)</span></span>
+            <input id="ip" type="text" inputmode="decimal" placeholder="192.168.1.20" autocomplete="off" spellcheck="false">
+          </label>
+          <p class="field-error" id="ip-error" hidden>IP tak sah. Contoh yang betul: 192.168.1.20</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="step is-locked" id="langkah-3" aria-labelledby="h-langkah-3">
+      <div class="step-head">
+        <span class="step-num">3</span>
+        <div>
+          <h2 id="h-langkah-3">Jalankan dari komputer</h2>
+          <p class="muted">Guna komputer yang disambung ke Wi-Fi yang sama dengan TV.</p>
+        </div>
+      </div>
+
+      <div class="phone-note" id="phone-note" hidden>
+        <p><b>Anda sedang guna telefon.</b> Langkah ini perlu dibuat di komputer (Windows, Mac atau Linux). Hantar pautan ini ke komputer anda. TV yang anda pilih akan diingat.</p>
+        <button class="button" type="button" id="copy-link">Salin pautan</button>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Sistem komputer">
+        <button role="tab" type="button" class="tab" id="tab-windows" data-os="windows" aria-controls="run-panel">Windows</button>
+        <button role="tab" type="button" class="tab" id="tab-mac" data-os="mac" aria-controls="run-panel">Mac</button>
+        <button role="tab" type="button" class="tab" id="tab-linux" data-os="linux" aria-controls="run-panel">Linux</button>
+      </div>
+
+      <div class="card run" id="run-panel" role="tabpanel">
+        <div id="run-windows">
+          <h3>Cara paling mudah</h3>
+          <p>Muat turun fail setup untuk TV anda, kemudian klik dua kali.</p>
+          <button class="button primary" type="button" id="download-bat">Muat turun setup.bat</button>
+          <p class="note">Jika Windows tunjuk <i>"Windows protected your PC"</i>, tekan <b>More info → Run anyway</b>.</p>
+          <h3 class="or">Atau tampal arahan ini dalam PowerShell</h3>
+          <p class="muted">Tekan butang Windows, taip <b>PowerShell</b>, tekan Enter. Tampal dengan klik kanan, kemudian tekan Enter.</p>
+        </div>
+        <div id="run-unix" hidden>
+          <h3>Tampal arahan ini dalam Terminal</h3>
+          <p class="muted" id="unix-how"></p>
+        </div>
+        <div class="command">
+          <code id="command"></code>
+          <button class="button copy" type="button" id="copy-command">Salin</button>
+        </div>
+      </div>
+
+      <div class="card after">
+        <h3>Apa yang berlaku seterusnya</h3>
+        <ol>
+          <li>Skrip muat turun alat ADB rasmi dari Google, kemudian sambung ke TV.</li>
+          <li>Skrin TV akan tanya <b>"Allow USB debugging?"</b>. Tick <b>Always allow</b>, kemudian tekan <b>Allow</b>.</li>
+          <li>Bloatware dimatikan, home screen baru dipasang, dan intro Layan.OS dimainkan di TV.</li>
+        </ol>
+        <p class="muted">Semuanya mengambil masa 2–5 minit. Setiap perubahan disimpan dalam backup dan boleh di-undo.</p>
+      </div>
+    </section>
+
+    <section class="features" aria-label="Apa yang anda dapat">
+      <div class="feature">
+        <h3>Buang bloatware</h3>
+        <p>App iklan, cadangan rancangan dan app Google yang tak digunakan dimatikan. App penting seperti Play Store dan Settings sentiasa dilindungi.</p>
+      </div>
+      <div class="feature">
+        <h3>Home screen baru</h3>
+        <p>Jam besar, butang Inputs, Wi-Fi dan Settings, serta satu baris app tanpa iklan. Susun app sendiri dengan tekan lama butang OK.</p>
+      </div>
+      <div class="feature">
+        <h3>Intro Layan.OS</h3>
+        <p>Animasi intro penuh setiap kali TV dibuka. Tekan mana-mana butang untuk langkau.</p>
+      </div>
+    </section>
+
+    <section class="faq" aria-labelledby="h-faq">
+      <h2 id="h-faq">Soalan lazim</h2>
+      <details>
+        <summary>Kenapa perlu komputer? Tak boleh terus dari laman web?</summary>
+        <p>Pelayar web tak dibenarkan bersambung terus ke peranti lain dalam rumah anda, atas sebab keselamatan. Komputer menjadi "jambatan" ke TV melalui ADB, alat rasmi Google untuk Android. Laman ini memilih tetapan yang betul untuk TV anda, dan komputer menjalankannya.</p>
+      </details>
+      <details>
+        <summary>Selamat ke? Apa sebenarnya yang diubah?</summary>
+        <p>Skrip hanya guna arahan ADB rasmi untuk mematikan app (<code>pm disable-user</code>). Tiada fail sistem dipadam dan tiada root diperlukan. Senarai penuh app yang dimatikan ditunjukkan di skrin, dan semuanya disimpan dalam folder backup.</p>
+      </details>
+      <details>
+        <summary>Macam mana nak undo?</summary>
+        <p>Jalankan semula arahan yang sama dan jawab <b>n</b> bila ditanya "Mula sekarang?". Menu penuh akan dibuka. Pilih <b>5</b> untuk kembali ke home screen asal, dan <b>4</b> untuk hidupkan semula app yang dimatikan. Di Windows, anda juga boleh klik dua kali <code>debloat.bat</code> dalam folder <code>AndroidTvDebloit</code> di folder pengguna anda.</p>
+      </details>
+      <details>
+        <summary>TV saya tiada dalam senarai.</summary>
+        <p>Pilih <b>Google TV lain</b> atau <b>Android TV lain</b> di bawah "Lain-lain". Skrip akan kesan jenama TV secara automatik dan guna senarai umum yang selamat untuk semua TV.</p>
+      </details>
+      <details>
+        <summary>Boleh guna untuk Samsung atau LG?</summary>
+        <p>Tak boleh. Samsung guna Tizen, LG guna webOS, dan Hisense/Toshiba tertentu guna VIDAA. Semuanya bukan Android, jadi ADB tak berfungsi pada TV tersebut.</p>
+      </details>
+      <details>
+        <summary>Kenapa logo jenama TV masih keluar sebelum intro?</summary>
+        <p>Logo kilang dan animasi boot Android hanya boleh ditukar dengan root. Intro Layan.OS dimainkan sebaik sahaja home screen muncul, dan setiap kali TV bangun dari standby.</p>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><span class="logo small">Layan<span>.OS</span></span> created by Dynoz</p>
+    <p class="muted">Sumber terbuka di <a href="https://github.com/Dynoz769/AndroidTvDebloit" rel="noopener">GitHub</a>. Gunakan atas risiko sendiri.</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

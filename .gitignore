@@ -1,0 +1,17 @@
+# Fail yang dijana oleh skrip
+backup/
+platform-tools/
+platform-tools.zip
+DebloitHome.apk
+imbas-*.txt
+.tv-ip
+
+# Android / Gradle
+launcher/.gradle/
+launcher/.kotlin/
+launcher/build/
+launcher/app/build/
+launcher/local.properties
+.idea/
+*.iml
+.DS_Store

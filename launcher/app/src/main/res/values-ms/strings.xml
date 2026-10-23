@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inputs">Input</string>
+    <string name="settings">Tetapan</string>
+    <string name="net_wifi">Wi-Fi</string>
+    <string name="net_ethernet">Ethernet</string>
+    <string name="net_offline">Tiada internet</string>
+    <string name="all_apps">Semua app</string>
+    <string name="options_hint">Tekan lama butang OK pada app untuk pilihan lain</string>
+    <string name="move_left">Alih ke kiri</string>
+    <string name="move_right">Alih ke kanan</string>
+    <string name="move_first">Alih ke depan</string>
+    <string name="hide_from_home">Sembunyi dari home</string>
+    <string name="show_on_home">Tunjuk di home</string>
+    <string name="app_info">Info app</string>
+    <string name="cannot_open">Tak dapat buka %1$s</string>
+    <string name="no_inputs">Tiada input dijumpai</string>
+    <string name="cannot_switch_input">Tak dapat tukar input</string>
+</resources>

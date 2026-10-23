@@ -1,0 +1,12 @@
+# Senarai SAYA - tambah app lain yang anda nak matikan di sini.
+#
+# Cara dapatkan nama pakej:
+#   1. Jalankan skrip, pilih menu "Imbas senarai app".
+#   2. Hantar fail imbas-*.txt kepada AI (contoh Claude) dan minta:
+#      "Senaraikan bloatware dalam TV ini yang selamat dimatikan,
+#       dalam format: nama.pakej   # penerangan"
+#   3. Salin jawapan ke bawah baris ini.
+#
+# Contoh:
+# com.contoh.appiklan                                 # App iklan dari kilang
+

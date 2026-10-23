@@ -1,0 +1,7 @@
+# Senarai TAMBAHAN - pilihan, skrip akan tanya dulu sebelum guna senarai ini.
+# App di sini selamat dimatikan, tapi ada orang yang masih guna.
+
+com.google.android.youtube.tvkids                     # YouTube Kids
+com.google.android.youtube.tvmusic                    # YouTube Music
+com.google.android.apps.tv.dreamx                     # Ambient mode Google TV (screensaver yang tunjuk cadangan)
+com.google.android.apps.tachyon                       # Google Meet / Duo

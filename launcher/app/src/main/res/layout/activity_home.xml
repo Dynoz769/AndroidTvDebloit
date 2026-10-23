@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_margin"
+        android:layout_marginTop="28dp"
+        android:orientation="vertical">
+
+        <TextClock
+            style="@style/Clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="h:mm"
+            android:format24Hour="HH:mm" />
+
+        <TextClock
+            style="@style/DateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="EEEE, d MMMM"
+            android:format24Hour="EEEE, d MMMM" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="@dimen/screen_margin"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/chip_inputs"
+            style="@style/Chip"
+            android:drawableStart="@drawable/ic_input"
+            android:text="@string/inputs" />
+
+        <TextView
+            android:id="@+id/chip_network"
+            style="@style/Chip"
+            android:drawableStart="@drawable/ic_wifi"
+            android:text="@string/net_wifi" />
+
+        <TextView
+            android:id="@+id/chip_settings"
+            style="@style/Chip"
+            android:layout_marginEnd="0dp"
+            android:drawableStart="@drawable/ic_settings"
+            android:text="@string/settings" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="20dp"
+        android:clipChildren="false"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/focused_title"
+            style="@style/FocusedTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_margin"
+            android:layout_marginEnd="@dimen/screen_margin" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/app_row"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/row_height"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingStart="@dimen/screen_margin"
+            android:paddingTop="16dp"
+            android:paddingEnd="@dimen/screen_margin" />
+    </LinearLayout>
+</FrameLayout>

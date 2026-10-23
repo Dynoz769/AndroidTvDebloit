@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Near-black with a deep red glow from the lower left, like the Apple TV look. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <color android:color="@color/background" />
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:centerX="0.0"
+                android:centerY="0.8"
+                android:endColor="#000A0A0C"
+                android:centerColor="#80500A14"
+                android:gradientRadius="115%p"
+                android:startColor="#FF8E1324"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list>
