@@ -3,6 +3,10 @@
 # melalui ADB dari komputer (Mac / Linux). Untuk Windows, guna debloat.bat.
 #
 # Semua perubahan direkod dalam folder backup/ dan boleh di-undo.
+#
+#   bash debloat.sh                                 menu penuh
+#   bash debloat.sh --auto [--jenama sony] [--ip 192.168.1.20]
+#                                                   setup penuh sekali jalan
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 LIST_DIR="$DIR/senarai"
@@ -19,6 +23,10 @@ SERIAL=""
 BRAND=""
 MODEL=""
 ANDROID_VER=""
+
+AUTO=0
+FORCE_BRAND=""
+PRESET_IP=""
 
 # ---------------------------------------------------------------- utiliti
 
@@ -148,7 +156,11 @@ connect_tv() {
   [ -f "$IP_FILE" ] && last="$(tr -d '[:space:]' < "$IP_FILE")"
   say ""
   say "Cari IP TV di: Settings > Network & Internet > (Wi-Fi/Ethernet anda) > IP address"
-  if [ -n "$last" ]; then
+  if [ -n "$PRESET_IP" ]; then
+    ip="$PRESET_IP"
+    PRESET_IP=""
+    say "Alamat IP TV: $ip"
+  elif [ -n "$last" ]; then
     read -r -p "Alamat IP TV [$last]: " ip || return 1
     ip="${ip:-$last}"
   else
@@ -260,17 +272,17 @@ restore_backup() { # fail_backup ; pulihkan dari bawah ke atas
 
 # ---------------------------------------------------------------- menu
 
-do_debloat() {
+do_debloat() { # [auto]
   require_tv || return
-  local files=("$LIST_DIR/umum.txt") f key brandlc enabled
-  brandlc="$(lower "$BRAND")"
+  local auto="${1:-}" files=("$LIST_DIR/umum.txt") f key brandlc enabled
+  brandlc="$(lower "$BRAND $FORCE_BRAND")"
   for f in "$LIST_DIR"/jenama-*.txt; do
     [ -e "$f" ] || continue
     key="$(basename "$f" .txt)"; key="${key#jenama-}"
     case "$brandlc" in *"$key"*) files+=("$f"); info "Guna senarai jenama: $key" ;; esac
   done
   files+=("$LIST_DIR/saya.txt")
-  if ask_yes "Termasuk senarai TAMBAHAN (YouTube Kids, YouTube Music, Ambient mode, Meet)?"; then
+  if [ -z "$auto" ] && ask_yes "Termasuk senarai TAMBAHAN (YouTube Kids, YouTube Music, Ambient mode, Meet)?"; then
     files+=("$LIST_DIR/tambahan.txt")
   fi
 
@@ -294,8 +306,8 @@ do_debloat() {
   local i
   for i in "${!pkgs[@]}"; do printf '  %2d. %-48s %s\n' "$((i + 1))" "${pkgs[$i]}" "${descs[$i]}"; done
   say ""
-  local reply chosen=()
-  read -r -p "Teruskan? [y] ya semua / [p] pilih satu-satu / [n] batal: " reply || return
+  local reply="y" chosen=()
+  [ -z "$auto" ] && { read -r -p "Teruskan? [y] ya semua / [p] pilih satu-satu / [n] batal: " reply || return; }
   case "$reply" in
     [yY]*) chosen=("${pkgs[@]}") ;;
     [pP]*)
@@ -310,7 +322,7 @@ do_debloat() {
   bfile="$(new_backup debloat)"
   for pkg in "${chosen[@]}"; do disable_pkg "$pkg" "$bfile"; done
   say ""; say "Siap. Backup disimpan: ${bfile#$DIR/}"
-  say "Nak undo? Pilih menu 'Undo'."
+  [ -z "$auto" ] && say "Nak undo? Pilih menu 'Undo'."
 }
 
 do_undo() {
@@ -336,9 +348,9 @@ do_undo() {
   say "Siap."
 }
 
-do_install_launcher() {
+do_install_launcher() { # [auto]
   require_tv || return
-  local apk="$LAUNCHER_APK" out
+  local auto="${1:-}" apk="$LAUNCHER_APK" out
   if [ ! -f "$apk" ]; then
     say "Muat turun DebloitHome.apk dari GitHub..."
     if ! curl -fL -o "$apk" "$LAUNCHER_URL"; then
@@ -365,7 +377,7 @@ do_install_launcher() {
     for i in "${!stock[@]}"; do printf '   - %-44s %s\n' "${stock[$i]}" "${descs[$i]}"; done
     say "Supaya butang Home pada remote terus buka home baru, home asal perlu dimatikan."
     say "(Boleh dipulihkan bila-bila masa dengan menu 'Buang home screen baru'.)"
-    if ask_yes "Matikan home screen asal? (disyorkan)"; then
+    if [ -n "$auto" ] || ask_yes "Matikan home screen asal? (disyorkan)"; then
       local bfile
       bfile="$(new_backup launcher)"
       for pkg in "${stock[@]}"; do disable_pkg "$pkg" "$bfile"; done
@@ -453,6 +465,30 @@ do_emergency() {
   say "Siap. $count app diperiksa & dipulihkan."
 }
 
+# Setup penuh sekali jalan, untuk arahan dari laman web.
+do_auto() {
+  say ""
+  say "================== Setup Layan.OS =================="
+  say " Skrip ini akan:"
+  say "   1. Sambung ke TV anda"
+  say "   2. Matikan bloatware & app iklan"
+  say "   3. Pasang home screen baru + intro Layan.OS"
+  say " Semua boleh di-undo dari menu penuh."
+  say "===================================================="
+  ask_yes "Mula sekarang?" || { main_menu; return; }
+  until connect_tv; do
+    ask_yes "Cuba sambung lagi?" || { say "Dibatalkan."; return; }
+  done
+  do_debloat auto
+  do_install_launcher auto
+  say ""
+  say "===================================================="
+  say " Setup selesai! Selamat menonton dengan Layan.OS."
+  say " Nak undo atau ubah? Jalankan semula:"
+  say "   bash \"$DIR/debloat.sh\""
+  say "===================================================="
+}
+
 main_menu() {
   local choice
   while true; do
@@ -485,4 +521,13 @@ main_menu() {
   done
 }
 
-main_menu
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --auto) AUTO=1 ;;
+    --jenama) FORCE_BRAND="${2:-}"; shift ;;
+    --ip) PRESET_IP="${2:-}"; shift ;;
+  esac
+  shift
+done
+
+if [ "$AUTO" -eq 1 ]; then do_auto; else main_menu; fi

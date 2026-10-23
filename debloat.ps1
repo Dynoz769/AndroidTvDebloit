@@ -2,6 +2,16 @@
 # melalui ADB dari komputer Windows. Jalankan melalui debloat.bat.
 #
 # Semua perubahan direkod dalam folder backup\ dan boleh di-undo.
+#
+#   debloat.ps1                                      menu penuh
+#   debloat.ps1 -Auto [-Jenama sony] [-Ip 192.168.1.20]
+#                                                    setup penuh sekali jalan
+
+param(
+    [switch]$Auto,
+    [string]$Jenama = '',
+    [string]$Ip = ''
+)
 
 $ErrorActionPreference = 'Continue'
 
@@ -20,6 +30,8 @@ $script:Serial     = ''
 $script:Brand      = ''
 $script:Model      = ''
 $script:AndroidVer = ''
+$script:ForceBrand = $Jenama
+$script:PresetIp   = $Ip
 
 # ---------------------------------------------------------------- utiliti
 
@@ -153,7 +165,11 @@ function Connect-Tv {
     if (Test-Path -LiteralPath $IpFile) { $last = (Get-Content -LiteralPath $IpFile -Raw).Trim() }
     Say ''
     Say 'Cari IP TV di: Settings > Network & Internet > (Wi-Fi/Ethernet anda) > IP address'
-    if ($last) {
+    if ($script:PresetIp) {
+        $ip = $script:PresetIp
+        $script:PresetIp = ''
+        Say "Alamat IP TV: $ip"
+    } elseif ($last) {
         $ip = Read-Host "Alamat IP TV [$last]"
         if (-not $ip) { $ip = $last }
     } else {
@@ -272,16 +288,16 @@ function Get-Backups {
 
 # ---------------------------------------------------------------- menu
 
-function Do-Debloat {
+function Do-Debloat([switch]$Auto) {
     if (-not (Require-Tv)) { return }
     $files = @(Join-Path $ListDir 'umum.txt')
-    $brandLc = $script:Brand.ToLower()
+    $brandLc = "$($script:Brand) $($script:ForceBrand)".ToLower()
     foreach ($f in Get-ChildItem -LiteralPath $ListDir -Filter 'jenama-*.txt' -ErrorAction SilentlyContinue) {
         $key = $f.BaseName -replace '^jenama-', ''
         if ($brandLc.Contains($key.ToLower())) { $files += $f.FullName; Info "Guna senarai jenama: $key" }
     }
     $files += (Join-Path $ListDir 'saya.txt')
-    if (Ask-Yes 'Termasuk senarai TAMBAHAN (YouTube Kids, YouTube Music, Ambient mode, Meet)?') {
+    if (-not $Auto -and (Ask-Yes 'Termasuk senarai TAMBAHAN (YouTube Kids, YouTube Music, Ambient mode, Meet)?')) {
         $files += (Join-Path $ListDir 'tambahan.txt')
     }
 
@@ -308,7 +324,8 @@ function Do-Debloat {
         Say ('  {0,2}. {1,-48} {2}' -f ($i + 1), $items[$i].Pkg, $items[$i].Desc)
     }
     Say ''
-    $reply = Read-Host 'Teruskan? [y] ya semua / [p] pilih satu-satu / [n] batal'
+    $reply = 'y'
+    if (-not $Auto) { $reply = Read-Host 'Teruskan? [y] ya semua / [p] pilih satu-satu / [n] batal' }
     $chosen = @()
     if ($reply -match '^[yY]') {
         $chosen = $items
@@ -324,7 +341,7 @@ function Do-Debloat {
     $bfile = New-Backup 'debloat'
     foreach ($item in $chosen) { Disable-Pkg $item.Pkg $bfile | Out-Null }
     Say ''; Say "Siap. Backup disimpan: backup\$(Split-Path -Leaf $bfile)"
-    Say "Nak undo? Pilih menu 'Undo'."
+    if (-not $Auto) { Say "Nak undo? Pilih menu 'Undo'." }
 }
 
 function Do-Undo {
@@ -350,7 +367,7 @@ function Do-Undo {
     Say 'Siap.'
 }
 
-function Do-InstallLauncher {
+function Do-InstallLauncher([switch]$Auto) {
     if (-not (Require-Tv)) { return }
     if (-not (Test-Path -LiteralPath $LauncherApk)) {
         Say 'Muat turun DebloitHome.apk dari GitHub...'
@@ -375,7 +392,7 @@ function Do-InstallLauncher {
         foreach ($s in $stock) { Say ('   - {0,-44} {1}' -f $s.Pkg, $s.Desc) }
         Say 'Supaya butang Home pada remote terus buka home baru, home asal perlu dimatikan.'
         Say "(Boleh dipulihkan bila-bila masa dengan menu 'Buang home screen baru'.)"
-        if (Ask-Yes 'Matikan home screen asal? (disyorkan)') {
+        if ($Auto -or (Ask-Yes 'Matikan home screen asal? (disyorkan)')) {
             $bfile = New-Backup 'launcher'
             foreach ($s in $stock) { Disable-Pkg $s.Pkg $bfile | Out-Null }
         }
@@ -475,31 +492,59 @@ function Do-Emergency {
     Say "Siap. $count app diperiksa & dipulihkan."
 }
 
-while ($true) {
+# Setup penuh sekali jalan, untuk arahan dari laman web.
+function Do-Auto {
     Say ''
-    Say '================ Android TV Debloit ================'
-    if ($script:Serial) { Say " TV: $($script:Brand) / $($script:Model) ($($script:Serial))" } else { Say ' TV: belum bersambung' }
-    Say '----------------------------------------------------'
-    Say '  1) Sambung ke TV'
-    Say '  2) Cuci bloatware'
-    Say '  3) Pasang home screen baru (gaya Apple TV)'
-    Say '  4) Undo - pulihkan dari backup'
-    Say '  5) Buang home screen baru & kembali ke asal'
-    Say '  6) Imbas senarai app (untuk tanya AI)'
-    Say '  7) Pulih kecemasan'
-    Say '  8) Main intro Layan.OS'
-    Say '  0) Keluar'
-    $choice = Read-Host 'Pilihan'
-    switch ($choice) {
-        '1' { $script:Serial = ''; Connect-Tv | Out-Null }
-        '2' { Do-Debloat }
-        '3' { Do-InstallLauncher }
-        '4' { Do-Undo }
-        '5' { Do-RemoveLauncher }
-        '6' { Do-Scan }
-        '7' { Do-Emergency }
-        '8' { Do-Intro }
-        '0' { exit 0 }
-        default { Say 'Pilihan tak sah.' }
+    Say '================== Setup Layan.OS =================='
+    Say ' Skrip ini akan:'
+    Say '   1. Sambung ke TV anda'
+    Say '   2. Matikan bloatware & app iklan'
+    Say '   3. Pasang home screen baru + intro Layan.OS'
+    Say ' Semua boleh di-undo dari menu penuh.'
+    Say '===================================================='
+    if (-not (Ask-Yes 'Mula sekarang?')) { Show-Menu; return }
+    while (-not (Connect-Tv)) {
+        if (-not (Ask-Yes 'Cuba sambung lagi?')) { Say 'Dibatalkan.'; return }
+    }
+    Do-Debloat -Auto
+    Do-InstallLauncher -Auto
+    Say ''
+    Say '===================================================='
+    Say ' Setup selesai! Selamat menonton dengan Layan.OS.'
+    Say ' Nak undo atau ubah? Klik dua kali fail ini:'
+    Say "   $(Join-Path $Dir 'debloat.bat')"
+    Say '===================================================='
+}
+
+function Show-Menu {
+    while ($true) {
+        Say ''
+        Say '================ Android TV Debloit ================'
+        if ($script:Serial) { Say " TV: $($script:Brand) / $($script:Model) ($($script:Serial))" } else { Say ' TV: belum bersambung' }
+        Say '----------------------------------------------------'
+        Say '  1) Sambung ke TV'
+        Say '  2) Cuci bloatware'
+        Say '  3) Pasang home screen baru (gaya Apple TV)'
+        Say '  4) Undo - pulihkan dari backup'
+        Say '  5) Buang home screen baru & kembali ke asal'
+        Say '  6) Imbas senarai app (untuk tanya AI)'
+        Say '  7) Pulih kecemasan'
+        Say '  8) Main intro Layan.OS'
+        Say '  0) Keluar'
+        $choice = Read-Host 'Pilihan'
+        switch ($choice) {
+            '1' { $script:Serial = ''; Connect-Tv | Out-Null }
+            '2' { Do-Debloat }
+            '3' { Do-InstallLauncher }
+            '4' { Do-Undo }
+            '5' { Do-RemoveLauncher }
+            '6' { Do-Scan }
+            '7' { Do-Emergency }
+            '8' { Do-Intro }
+            '0' { exit 0 }
+            default { Say 'Pilihan tak sah.' }
+        }
     }
 }
+
+if ($Auto) { Do-Auto } else { Show-Menu }

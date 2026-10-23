@@ -15,6 +15,16 @@ Berfungsi untuk **Google TV** dan **Android TV** (Sony, TCL, Xiaomi, Sharp, Phil
 
 ---
 
+## Cara paling mudah: laman web
+
+Buka **https://dynoz769.github.io/AndroidTvDebloit/**, pilih model TV anda, dan ikut 3 langkah. Laman tersebut akan tunjuk langkah yang betul untuk TV anda, dan beri **satu arahan** (atau fail `setup.bat` untuk Windows) yang menjalankan setup penuh secara automatik.
+
+> Pelayar web tak dibenarkan bersambung terus ke TV atas sebab keselamatan. Jadi langkah terakhir tetap perlu dijalankan dari komputer yang disambung ke Wi-Fi yang sama dengan TV.
+
+Kalau anda lebih suka buat secara manual, ikut langkah di bawah.
+
+---
+
 ## Apa yang anda perlukan
 
 - Komputer **Windows**, **Mac** atau **Linux**.
@@ -156,6 +166,10 @@ Update sistem kadang-kadang menghidupkan semula app yang telah dimatikan. Kalau 
 ## Untuk developer
 
 - `debloat.sh` ialah skrip untuk Mac/Linux (bash), manakala `debloat.ps1` ialah skrip untuk Windows (PowerShell, dilancarkan oleh `debloat.bat`). Kedua-duanya buat perkara yang sama.
+  - Tanpa pilihan, skrip buka menu penuh. Dengan `--auto` (`-Auto` untuk Windows), skrip jalankan setup penuh sekali jalan. Tambah `--jenama sony` dan `--ip 192.168.1.20` untuk tetapkan jenama dan IP terlebih dahulu.
+- `web/` mengandungi laman web pemilih model (HTML, CSS dan JavaScript biasa, tanpa build). Laman ini diterbitkan ke GitHub Pages oleh workflow `pages.yml`.
+  - `web/setup.sh` dan `web/setup.ps1` ialah pemasang satu-arahan yang dipanggil oleh laman web. Ia muat turun kit ke `~/AndroidTvDebloit` (atau `%USERPROFILE%\AndroidTvDebloit`), kemudian jalankan skrip dengan `--auto`.
+  - Untuk tambah model TV baru, kemas kini senarai `BRANDS` dalam `web/app.js`. Untuk tambah senarai bloatware jenama, cipta `senarai/jenama-<profile>.txt`.
 - `launcher/` mengandungi kod sumber Debloit Home (Kotlin, minSdk 23). Intro dilukis frame demi frame dalam `IntroView.kt`.
   - Font intro ialah [Orbitron](https://github.com/theleagueof/orbitron) (SIL Open Font License, lihat `launcher/app/src/main/assets/licenses/`).
   - Untuk bina sendiri: `cd launcher && ./gradlew assembleRelease`.

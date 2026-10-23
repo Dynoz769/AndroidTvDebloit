@@ -1,0 +1,6 @@
+# Senarai jenama SONY (BRAVIA Android TV / Google TV).
+# Senarai permulaan - app yang tiada dalam TV anda akan dilangkau.
+# Jumpa bloatware Sony lain? Guna menu "Imbas senarai app" dan tambah di sini.
+
+com.sony.dtv.sonyselect                               # Sony Select (promosi & cadangan app)
+com.sony.dtv.photosharingplus                         # Photo Sharing Plus
