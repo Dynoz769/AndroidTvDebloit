@@ -1,0 +1,4 @@
+# Senarai tablet LENOVO (Tab M / Tab P).
+# Senarai permulaan - guna menu "Imbas senarai app" untuk cari lagi.
+
+com.lenovo.tips                                       # Tips Lenovo

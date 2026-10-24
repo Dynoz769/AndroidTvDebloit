@@ -17,14 +17,20 @@ class AllAppsActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_all_apps)
         repo = AppRepository(this)
+        val tv = isTv()
         adapter = AppAdapter(
             onOpen = { tile -> if (tile is Tile.App) launchApp(tile.entry) },
             onOptions = ::showOptions,
+            compact = !tv,
         )
         grid = findViewById(R.id.app_grid)
-        val tileWidth = resources.getDimension(R.dimen.tile_width) + resources.getDimension(R.dimen.tile_gap)
         val usable = resources.displayMetrics.widthPixels - grid.paddingStart - grid.paddingEnd
-        grid.layoutManager = GridLayoutManager(this, (usable / tileWidth).toInt().coerceAtLeast(2))
+        val cellDp = if (tv) {
+            (resources.getDimension(R.dimen.tile_width) + resources.getDimension(R.dimen.tile_gap)) / resources.displayMetrics.density
+        } else {
+            HomeActivity.TABLET_CELL_DP
+        }
+        grid.layoutManager = GridLayoutManager(this, columnsFor(usable, cellDp))
         grid.adapter = adapter
     }
 

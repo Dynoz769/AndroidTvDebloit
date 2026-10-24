@@ -1,0 +1,7 @@
+# Senarai tablet REALME (realme UI) - sama seperti OPPO.
+
+com.heytap.market                                     # App Market (iklan)
+com.heytap.browser                                    # Pelayar HeyTap (iklan)
+com.oplus.games                                       # Games / Game Space
+com.heytap.pictorial                                  # Lock screen magazine (iklan)
+com.coloros.gamespaceui                               # Game Space UI

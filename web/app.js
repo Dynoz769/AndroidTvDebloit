@@ -1,5 +1,5 @@
-// LayanTv setup page: pick a TV model, get tailored steps and one command
-// that runs the Android TV Debloit setup from a computer.
+// LayanTv setup page: pick a TV or tablet model, get tailored steps and one
+// command that runs the Android TV Debloit setup from a computer.
 
 const RAW = "https://raw.githubusercontent.com/Dynoz769/AndroidTvDebloit/main/web";
 
@@ -16,6 +16,45 @@ const STEPS = {
     "Kembali ke <b>Device Preferences</b> → <b>Developer options</b>.",
     "Hidupkan <b>USB debugging</b>. Ada TV yang namakannya <b>Network debugging</b>.",
   ],
+  tablet: [
+    "Buka <b>Settings</b> → <b>About tablet</b>.",
+    "Tekan <b>Build number</b> sebanyak <b>7 kali</b> sehingga keluar mesej <i>\"You are now a developer\"</i>. Kadang-kadang ia di bawah <b>Software information</b>.",
+    "Kembali ke <b>Settings</b> → <b>System</b> → <b>Developer options</b>.",
+    "Hidupkan <b>USB debugging</b>.",
+  ],
+  samsung: [
+    "Buka <b>Settings</b> → <b>About tablet</b> → <b>Software information</b>.",
+    "Tekan <b>Build number</b> sebanyak <b>7 kali</b> dan masukkan PIN jika diminta.",
+    "Kembali ke <b>Settings</b> → <b>Developer options</b> (paling bawah).",
+    "Hidupkan <b>USB debugging</b>.",
+  ],
+  xiaomi: [
+    "Buka <b>Settings</b> → <b>About tablet</b>.",
+    "Tekan <b>OS version</b> (atau <b>MIUI version</b>) sebanyak <b>7 kali</b>.",
+    "Kembali ke <b>Settings</b> → <b>Additional settings</b> → <b>Developer options</b>.",
+    "Hidupkan <b>USB debugging</b> dan <b>Install via USB</b>. Xiaomi mungkin minta log masuk akaun Mi.",
+  ],
+};
+
+const CONNECT = {
+  tv: {
+    title: "Cari alamat IP TV",
+    steps: [
+      "Buka <b>Settings → Network &amp; Internet</b>.",
+      "Pilih Wi-Fi (atau Ethernet) yang sedang disambung.",
+      "Catat <b>IP address</b>, contoh <code>192.168.1.20</code>.",
+    ],
+    ip: "IP TV anda",
+  },
+  tablet: {
+    title: "Sambung tablet ke komputer",
+    steps: [
+      "Sambung tablet ke komputer dengan <b>kabel USB</b>. Ini cara paling mudah.",
+      "Bila tablet tanya <b>\"Allow USB debugging?\"</b>, tick <b>Always allow</b> dan tekan <b>Allow</b>.",
+      "Tiada kabel? Hidupkan <b>Wireless debugging</b> dalam Developer options dan masukkan IP yang tertera di bawah.",
+    ],
+    ip: "IP tablet (tanpa kabel sahaja)",
+  },
 };
 
 // profile: picks senarai/jenama-<profile>.txt in the scripts (if it exists).
@@ -95,12 +134,55 @@ const BRANDS = [
   },
 ];
 
-const TYPE_LABEL = { googletv: "Google TV", androidtv: "Android TV", unsupported: "Tak disokong" };
+// Tablet profiles pick senarai/tablet-jenama-<profile>.txt; the scripts tell
+// tablets from TVs on their own.
+const TABLET_BRANDS = [
+  {
+    id: "tab-samsung", name: "Samsung", models: [
+      { id: "tab-samsung-galaxy", name: "Galaxy Tab", years: "Tab A, Tab A7, A8, A9, S6 Lite, S7, S8, S9 dan lain-lain", type: "tablet", profile: "samsung", steps: "samsung" },
+    ],
+  },
+  {
+    id: "tab-xiaomi", name: "Xiaomi", models: [
+      { id: "tab-xiaomi-pad", name: "Xiaomi Pad / Redmi Pad / POCO Pad", years: "MIUI & HyperOS", type: "tablet", profile: "xiaomi", steps: "xiaomi" },
+    ],
+  },
+  {
+    id: "tab-lenovo", name: "Lenovo", models: [
+      { id: "tab-lenovo", name: "Lenovo Tab", years: "Tab M8, M10, M11, P11, P12 dan lain-lain", type: "tablet", profile: "lenovo" },
+    ],
+  },
+  {
+    id: "tab-oppo", name: "OPPO / realme / OnePlus", models: [
+      { id: "tab-oppo-pad", name: "OPPO Pad", years: "ColorOS", type: "tablet", profile: "oppo" },
+      { id: "tab-realme-pad", name: "realme Pad", years: "realme UI", type: "tablet", profile: "realme" },
+      { id: "tab-oneplus-pad", name: "OnePlus Pad", years: "OxygenOS", type: "tablet", profile: "oppo" },
+    ],
+  },
+  {
+    id: "tab-other", name: "Lain-lain", models: [
+      { id: "tab-huawei", name: "Huawei / Honor", years: "MatePad, Honor Pad (Android)", type: "tablet", profile: "" },
+      { id: "tab-other", name: "Tablet Android lain", years: "Teclast, Alldocube, Blackview, Nokia, Doogee dan lain-lain", type: "tablet", profile: "" },
+    ],
+  },
+  {
+    id: "tab-unsupported", name: "Bukan Android", models: [
+      { id: "ipad", name: "iPad", years: "iPadOS", type: "unsupported" },
+      {
+        id: "fire-tablet", name: "Amazon Fire tablet", years: "Fire OS", type: "unsupported",
+        why: "Fire tablet berasaskan Android, tetapi app sistemnya berbeza. LayanTv belum menyokong Fire tablet.",
+      },
+    ],
+  },
+];
 
-const models = BRANDS.flatMap((brand) => brand.models.map((m) => ({ ...m, brand: brand.name, brandId: brand.id })));
+const TYPE_LABEL = { googletv: "Google TV", androidtv: "Android TV", tablet: "Tablet", unsupported: "Tak disokong" };
+
+const withBrand = (kind) => (brand) => brand.models.map((m) => ({ ...m, kind, brand: brand.name, brandId: brand.id }));
+const models = [...BRANDS.flatMap(withBrand("tv")), ...TABLET_BRANDS.flatMap(withBrand("tablet"))];
 
 const $ = (id) => document.getElementById(id);
-const state = { brand: "all", query: "", model: null, os: detectOs(), ip: "" };
+const state = { kind: "tv", brand: "all", query: "", model: null, os: detectOs(), ip: "" };
 
 function detectOs() {
   const ua = navigator.userAgent;
@@ -114,8 +196,17 @@ const isPhone = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
 // ---------------------------------------------------------------- picker
 
+function renderKinds() {
+  for (const button of document.querySelectorAll(".kind")) {
+    button.setAttribute("aria-pressed", String(button.dataset.kind === state.kind));
+  }
+  $("search").placeholder = state.kind === "tv"
+    ? "Cari jenama atau model, contoh: Sony, TCL, Mi Box"
+    : "Cari jenama atau model, contoh: Galaxy Tab, Redmi Pad, Lenovo";
+}
+
 function renderChips() {
-  const chips = [{ id: "all", name: "Semua" }, ...BRANDS];
+  const chips = [{ id: "all", name: "Semua" }, ...(state.kind === "tv" ? BRANDS : TABLET_BRANDS)];
   $("brand-chips").replaceChildren(...chips.map((b) => {
     const chip = document.createElement("button");
     chip.type = "button";
@@ -132,6 +223,7 @@ function renderChips() {
 }
 
 function matches(m) {
+  if (m.kind !== state.kind) return false;
   if (state.brand !== "all" && m.brandId !== state.brand) return false;
   const q = state.query.trim().toLowerCase();
   // Non-Android TVs only show up when asked for, to keep the list short.
@@ -158,6 +250,12 @@ function renderModels() {
 
 function selectModel(m, scroll) {
   state.model = m;
+  if (state.kind !== m.kind) {
+    state.kind = m.kind;
+    state.brand = "all";
+    renderKinds();
+    renderChips();
+  }
   history.replaceState(null, "", `#tv=${m.id}`);
   renderModels();
   renderSteps();
@@ -169,7 +267,8 @@ function selectModel(m, scroll) {
 
 function fullName(m) {
   const named = m.name.toLowerCase().startsWith(m.brand.toLowerCase());
-  return named || m.brandId === "other" || m.brandId === "unsupported" ? m.name : `${m.brand} ${m.name}`;
+  const generic = ["other", "unsupported", "tab-other", "tab-unsupported"].includes(m.brandId);
+  return named || generic ? m.name : `${m.brand} ${m.name}`;
 }
 
 function renderSteps() {
@@ -179,17 +278,26 @@ function renderSteps() {
   $("langkah-3").classList.toggle("is-locked", !supported);
   if (!m) return;
 
-  $("selected-tv").innerHTML = `TV anda: <b>${fullName(m)}</b> · ${TYPE_LABEL[m.type]}`;
+  const device = m.kind === "tablet" ? "Tablet" : "TV";
+  $("selected-tv").innerHTML = `${device} anda: <b>${fullName(m)}</b> · ${TYPE_LABEL[m.type]}`;
   $("unsupported").hidden = supported;
   $("tv-steps").hidden = !supported;
 
   if (!supported) {
-    const why = m.why || `${m.name} guna ${m.years}, bukan Android. LayanTv hanya berfungsi pada Google TV dan Android TV.`;
-    $("unsupported").innerHTML = `<h3>Maaf, TV ini tak disokong</h3><p>${why}</p>`;
+    const why = m.why || `${m.name} guna ${m.years}, bukan Android. LayanTv hanya berfungsi pada Google TV, Android TV dan tablet Android.`;
+    $("unsupported").innerHTML = `<h3>Maaf, ${device.toLowerCase()} ini tak disokong</h3><p>${why}</p>`;
     return;
   }
 
-  $("dev-steps").innerHTML = STEPS[m.type].map((s) => `<li>${s}</li>`).join("");
+  $("dev-steps").innerHTML = STEPS[m.steps || m.type].map((s) => `<li>${s}</li>`).join("");
+  const connect = CONNECT[m.kind];
+  $("connect-title").textContent = connect.title;
+  $("connect-steps").innerHTML = connect.steps.map((s) => `<li>${s}</li>`).join("");
+  $("ip-label").textContent = connect.ip;
+  $("rom-card").hidden = m.kind !== "tablet";
+  $("run-intro").textContent = m.kind === "tablet"
+    ? "Guna komputer, dengan tablet disambung melalui kabel USB (atau Wi-Fi yang sama)."
+    : "Guna komputer yang disambung ke Wi-Fi yang sama dengan TV.";
   $("dev-note").hidden = !m.note;
   $("dev-note").innerHTML = m.note || "";
 }
@@ -276,6 +384,16 @@ async function copy(text, done) {
 // ---------------------------------------------------------------- start
 
 function init() {
+  for (const button of document.querySelectorAll(".kind")) {
+    button.addEventListener("click", () => {
+      state.kind = button.dataset.kind;
+      state.brand = "all";
+      renderKinds();
+      renderChips();
+      renderModels();
+    });
+  }
+  renderKinds();
   renderChips();
   renderModels();
 

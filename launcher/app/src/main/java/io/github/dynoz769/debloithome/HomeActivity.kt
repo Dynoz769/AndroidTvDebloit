@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -18,6 +19,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -26,7 +28,8 @@ class HomeActivity : Activity() {
     private lateinit var repo: AppRepository
     private lateinit var adapter: AppAdapter
     private lateinit var row: RecyclerView
-    private lateinit var focusedTitle: TextView
+    private var focusedTitle: TextView? = null
+    private var tv = true
     private lateinit var networkChip: TextView
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var focusedKey: String? = null
@@ -40,6 +43,8 @@ class HomeActivity : Activity() {
     // Most TVs only go to standby when switched off, so play the intro on wake too.
     private val screenOnReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            // Tablets wake many times a day, so only TVs replay the intro on wake.
+            if (!tv) return
             wokeAt = SystemClock.elapsedRealtime()
             if (resumed) playIntro()
         }
@@ -47,7 +52,8 @@ class HomeActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        tv = isTv()
+        setContentView(if (tv) R.layout.activity_home else R.layout.activity_home_tablet)
         repo = AppRepository(this)
         row = findViewById(R.id.app_row)
         focusedTitle = findViewById(R.id.focused_title)
@@ -58,10 +64,15 @@ class HomeActivity : Activity() {
             onOptions = ::showOptions,
             onFocused = { tile ->
                 focusedKey = tile.key
-                focusedTitle.text = tile.title(this)
+                focusedTitle?.text = tile.title(this)
             },
+            compact = !tv,
         )
-        row.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        row.layoutManager = if (tv) {
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        } else {
+            GridLayoutManager(this, columnsFor(resources.displayMetrics.widthPixels, TABLET_CELL_DP))
+        }
         row.adapter = adapter
 
         val inputsChip = findViewById<View>(R.id.chip_inputs)
@@ -89,6 +100,13 @@ class HomeActivity : Activity() {
     override fun onPause() {
         resumed = false
         super.onPause()
+    }
+
+    // The home screen handles rotation itself (see configChanges), so refit the tablet grid.
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        (row.layoutManager as? GridLayoutManager)?.spanCount =
+            columnsFor((newConfig.screenWidthDp * resources.displayMetrics.density).toInt(), TABLET_CELL_DP)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -242,5 +260,6 @@ class HomeActivity : Activity() {
         const val EXTRA_INTRO = "intro"
 
         private const val WAKE_WINDOW_MS = 20_000L
+        const val TABLET_CELL_DP = 112f
     }
 }

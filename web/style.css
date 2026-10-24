@@ -169,6 +169,24 @@ h1 em { color: var(--accent); }
 }
 .search input:focus { outline: none; border-color: var(--accent); }
 
+.kinds { display: inline-flex; gap: 4px; margin-bottom: 14px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; }
+.kind {
+  min-height: 40px; min-width: 96px; padding: 8px 20px;
+  background: transparent; border: 0; border-radius: 999px;
+  color: var(--muted); font: 500 15px/1 var(--body); letter-spacing: 0.04em; cursor: pointer;
+}
+.kind[aria-pressed="true"] { background: var(--surface-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+
+.badge.tablet { background: rgba(244, 241, 234, 0.07); color: #d3cec4; }
+
+.rom { margin-top: 16px; }
+.rom summary { cursor: pointer; font: 500 20px/1.3 var(--display); list-style: none; }
+.rom summary::-webkit-details-marker { display: none; }
+.rom summary::after { content: " +"; color: var(--accent); font-family: var(--body); }
+.rom[open] summary::after { content: " –"; }
+.rom p, .rom ul { color: var(--muted); }
+.rom a { color: var(--accent); }
+
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; }
 .chip {
   min-height: 36px; padding: 6px 14px;
