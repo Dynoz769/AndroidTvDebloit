@@ -85,6 +85,7 @@ Masa pertama kali skrip bersambung ke TV, skrin TV akan bertanya *"Allow USB deb
 | 6 | Imbas senarai app | Simpan senarai semua app dalam TV ke fail `imbas-*.txt`, untuk ditanya kepada AI. |
 | 7 | Pulih kecemasan | Hidupkan semula semua app dalam senarai, walaupun folder backup sudah hilang. |
 | 8 | Main intro LayanTv | Mainkan intro di TV sekarang, untuk tengok atau tunjuk kepada kawan. |
+| 9 | Lajukan animasi sistem | Tukar animasi sistem ke 0.5x supaya peranti terasa lebih laju. Boleh di-undo. |
 
 Cadangan untuk kali pertama: **1 → 2 → 3**.
 
@@ -115,6 +116,22 @@ Bila intro dimainkan:
 Tekan mana-mana butang pada remote untuk langkau intro.
 
 > Intro ini dimainkan oleh home screen, selepas Android selesai dimuatkan. Logo jenama TV dan animasi *boot* Android di awal tak boleh ditukar tanpa *root*.
+
+---
+
+## Tablet Android
+
+LayanTv juga berfungsi pada **semua tablet Android** (Samsung Galaxy Tab, Xiaomi/Redmi/POCO Pad, Lenovo Tab, OPPO/realme/OnePlus Pad, Huawei/Honor dan lain-lain), tanpa root dan tanpa padam data.
+
+- Skrip kesan sendiri sama ada peranti ialah TV atau tablet.
+- Tablet boleh disambung dengan **kabel USB**. Skrip akan guna peranti USB secara automatik.
+- Bloatware tablet diambil dari `senarai/tablet-umum.txt` dan `senarai/tablet-jenama-<jenama>.txt` (iklan MIUI, Bixby, Game Launcher, app Facebook pra-pasang, dan lain-lain).
+- Animasi sistem dilajukan ke 0.5x (menu **9**). Nilai asal disimpan dalam backup dan boleh di-undo.
+- Home screen LayanTv bertukar ke grid ikon untuk skrin sentuh. Home asal tablet **tidak** dimatikan, jadi anda boleh tukar balik di *Settings → Apps → Default apps → Home*.
+
+![Home screen LayanTv pada tablet](docs/preview-tablet.png)
+
+> **Custom ROM penuh** (contohnya LineageOS) menggantikan seluruh Android. Ia hanya ada untuk model tertentu, memadam semua data, dan boleh merosakkan tablet jika tersilap langkah. LayanTv sengaja tidak melakukan ini. Semak [senarai peranti LineageOS](https://wiki.lineageos.org/devices/) jika anda tetap mahu mencuba.
 
 ---
 

@@ -1,0 +1,14 @@
+# Senarai UMUM TABLET - untuk semua tablet Android.
+#
+# Format setiap baris:   nama.pakej    # penerangan
+# - App yang tiada dalam tablet anda akan dilangkau secara automatik.
+# - Semua yang dimatikan disimpan dalam folder backup/ dan boleh di-undo.
+# - Hanya app yang tak diperlukan untuk tablet berfungsi.
+
+com.facebook.appmanager                               # Pengurus app Facebook (pra-pasang kilang)
+com.facebook.services                                 # Servis Facebook (pra-pasang kilang)
+com.facebook.system                                   # Pemasang Facebook (pra-pasang kilang)
+com.netflix.partner.activation                        # Pengaktif Netflix rakan kongsi
+com.google.android.feedback                           # Hantar maklum balas ke Google
+com.google.android.videos                             # Google TV / Play Movies (kedai filem Google)
+com.google.android.apps.subscriptions.red             # Google One (iklan langganan)

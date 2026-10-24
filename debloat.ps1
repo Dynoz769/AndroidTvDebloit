@@ -30,6 +30,7 @@ $script:Serial     = ''
 $script:Brand      = ''
 $script:Model      = ''
 $script:AndroidVer = ''
+$script:Device     = 'tv'   # tv / tablet
 $script:ForceBrand = $Jenama
 $script:PresetIp   = $Ip
 
@@ -76,6 +77,9 @@ function Test-Protected([string]$Pkg) {
         'com.android.providers.*', 'com.android.inputmethod.*', 'com.google.android.inputmethod.*',
         'com.android.networkstack*', 'com.google.android.networkstack*',
         'com.google.android.tv.remote.service', 'com.google.android.tvsetup',
+        'com.sec.android.app.launcher', 'com.miui.home', 'com.android.launcher', 'com.android.launcher3',
+        'com.google.android.apps.nexuslauncher', 'com.huawei.android.launcher', 'com.oppo.launcher',
+        'com.samsung.android.honeyboard', 'com.google.android.apps.tablet.launcher',
         $LauncherPkg
     )
     foreach ($p in $patterns) { if ($Pkg -like $p) { return $true } }
@@ -139,6 +143,23 @@ function Load-TvInfo {
     if ($brand.ToLower() -ne $maker.ToLower()) { $script:Brand = "$maker $brand" }
     $script:Model      = Get-Prop 'ro.product.model'
     $script:AndroidVer = Get-Prop 'ro.build.version.release'
+    $script:Device = 'tablet'
+    if ((Tv 'pm list features') -match 'android\.software\.leanback') { $script:Device = 'tv' }
+}
+
+function Get-DeviceKind {
+    if ($script:Device -eq 'tablet') { return 'Tablet' }
+    if (Test-GoogleTv) { return 'Google TV' }
+    return 'Android TV'
+}
+
+# Peranti yang disambung dengan kabel USB (siri tanpa ':').
+function Get-UsbDevice {
+    foreach ($line in ((Invoke-Adb @('devices')) -split "`n" | Select-Object -Skip 1)) {
+        $parts = $line.Trim() -split '\s+'
+        if ($parts.Count -ge 2 -and $parts[1] -eq 'device' -and $parts[0] -notmatch ':') { return $parts[0] }
+    }
+    return ''
 }
 
 function Connect-Adb([string]$Address) {
@@ -163,8 +184,19 @@ function Connect-Tv {
     if (-not (Find-Adb)) { return $false }
     $last = ''
     if (Test-Path -LiteralPath $IpFile) { $last = (Get-Content -LiteralPath $IpFile -Raw).Trim() }
+    $usb = Get-UsbDevice
+    if (-not $script:PresetIp -and $usb) {
+        if ($Auto -or (Ask-Yes "Jumpa peranti melalui kabel USB ($usb). Guna peranti ini?")) {
+            $script:Serial = $usb
+            Load-TvInfo
+            Ok "Bersambung (USB): $($script:Brand) / $($script:Model) (Android $($script:AndroidVer))"
+            Info "Jenis: $(Get-DeviceKind)"
+            return $true
+        }
+    }
     Say ''
-    Say 'Cari IP TV di: Settings > Network & Internet > (Wi-Fi/Ethernet anda) > IP address'
+    Say 'Sambung tablet dengan kabel USB, atau guna Wi-Fi.'
+    Say 'Cari IP di: Settings > Network & Internet (atau Wi-Fi) > rangkaian anda > IP address'
     if ($script:PresetIp) {
         $ip = $script:PresetIp
         $script:PresetIp = ''
@@ -196,7 +228,7 @@ function Connect-Tv {
             $script:Serial = $ip
             Load-TvInfo
             Ok "Bersambung: $($script:Brand) / $($script:Model) (Android $($script:AndroidVer))"
-            if (Test-GoogleTv) { Info 'Jenis: Google TV' } else { Info 'Jenis: Android TV' }
+            Info "Jenis: $(Get-DeviceKind)"
             return $true
         }
         if ($state -match 'unauthorized' -and $i -eq 1) {
@@ -246,8 +278,14 @@ function Disable-Pkg([string]$Pkg, [string]$BackupFile) {
     return $false
 }
 
-function Restore-Pkg([string]$Action, [string]$Pkg) {
+function Restore-Pkg([string]$Action, [string]$Pkg, [string]$Value = '') {
     $out = ''
+    if ($Action -eq 'setting') {
+        if (-not $Value -or $Value -eq 'null') { Tv "settings delete global $Pkg" | Out-Null } else { Tv "settings put global $Pkg $Value" | Out-Null }
+        if (-not $Value) { $Value = 'null' }
+        Ok "Tetapan $Pkg dipulihkan ($Value)"
+        return $true
+    }
     if ($Action -eq 'disable') {
         $out = Tv "pm enable $Pkg"
         if ($out -match 'new state: (enabled|default)') { Ok "$Pkg (dihidupkan)"; return $true }
@@ -268,8 +306,10 @@ function Restore-Backup([string]$File) {
     $errors = 0
     foreach ($line in $lines) {
         $parts = $line.Trim() -split '\s+'
-        if ($parts.Count -ge 2 -and ($parts[0] -eq 'disable' -or $parts[0] -eq 'uninstall')) {
-            if (-not (Restore-Pkg $parts[0] $parts[1])) { $errors++ }
+        if ($parts.Count -ge 2 -and $parts[0] -in @('disable', 'uninstall', 'setting')) {
+            $value = ''
+            if ($parts.Count -ge 3) { $value = $parts[2] }
+            if (-not (Restore-Pkg $parts[0] $parts[1] $value)) { $errors++ }
         }
     }
     if ($errors -eq 0) {
@@ -290,15 +330,18 @@ function Get-Backups {
 
 function Do-Debloat([switch]$Auto) {
     if (-not (Require-Tv)) { return }
-    $files = @(Join-Path $ListDir 'umum.txt')
+    $prefix = ''
+    $extra = 'YouTube Kids, YouTube Music, Ambient mode, Meet'
+    if ($script:Device -eq 'tablet') { $prefix = 'tablet-'; $extra = 'YouTube Music, Meet, OneDrive, Office' }
+    $files = @(Join-Path $ListDir "${prefix}umum.txt")
     $brandLc = "$($script:Brand) $($script:ForceBrand)".ToLower()
-    foreach ($f in Get-ChildItem -LiteralPath $ListDir -Filter 'jenama-*.txt' -ErrorAction SilentlyContinue) {
-        $key = $f.BaseName -replace '^jenama-', ''
+    foreach ($f in Get-ChildItem -LiteralPath $ListDir -Filter "${prefix}jenama-*.txt" -ErrorAction SilentlyContinue) {
+        $key = $f.BaseName -replace "^${prefix}jenama-", ''
         if ($brandLc.Contains($key.ToLower())) { $files += $f.FullName; Info "Guna senarai jenama: $key" }
     }
     $files += (Join-Path $ListDir 'saya.txt')
-    if (-not $Auto -and (Ask-Yes 'Termasuk senarai TAMBAHAN (YouTube Kids, YouTube Music, Ambient mode, Meet)?')) {
-        $files += (Join-Path $ListDir 'tambahan.txt')
+    if (-not $Auto -and (Ask-Yes "Termasuk senarai TAMBAHAN ($extra)?")) {
+        $files += (Join-Path $ListDir "${prefix}tambahan.txt")
     }
 
     $enabled = Get-Packages '-e'
@@ -352,8 +395,8 @@ function Do-Undo {
     for ($i = 0; $i -lt $files.Count; $i++) {
         $content = @(Get-Content -LiteralPath $files[$i].FullName)
         $tv = ($content | Where-Object { $_ -like '# TV:*' } | Select-Object -First 1) -replace '^# TV: ', ''
-        $count = @($content | Where-Object { $_ -match '^(disable|uninstall) ' }).Count
-        Say ('  {0}. {1}  [{2}, {3} app]' -f ($i + 1), $files[$i].Name, $tv, $count)
+        $count = @($content | Where-Object { $_ -match '^(disable|uninstall|setting) ' }).Count
+        Say ('  {0}. {1}  [{2}, {3} perubahan]' -f ($i + 1), $files[$i].Name, $tv, $count)
     }
     $reply = Read-Host "Pilih nombor backup untuk dipulihkan [1], atau 'a' untuk semua"
     if (-not $reply) { $reply = '1' }
@@ -369,6 +412,9 @@ function Do-Undo {
 
 function Do-InstallLauncher([switch]$Auto) {
     if (-not (Require-Tv)) { return }
+    if ($script:Device -eq 'tablet' -and -not $Auto) {
+        if (-not (Ask-Yes 'Pasang home screen LayanTv pada tablet ini?')) { return }
+    }
     if (-not (Test-Path -LiteralPath $LauncherApk)) {
         Say 'Muat turun DebloitHome.apk dari GitHub...'
         try {
@@ -402,7 +448,29 @@ function Do-InstallLauncher([switch]$Auto) {
     if ($out -match 'Success') { Ok 'LayanTv ditetapkan sebagai home' }
     else { Info 'Pilih LayanTv jika TV tanya home mana nak guna.' }
     Tv "am start -n $LauncherActivity --ez intro true" | Out-Null
-    Say ''; Say 'Siap! Tengok TV - intro LayanTv sedang dimainkan.'
+    if ($script:Device -eq 'tablet') {
+        Info 'Home asal tablet tidak dimatikan. Tukar balik bila-bila masa di Settings > Apps > Default apps > Home.'
+    }
+    Say ''; Say 'Siap! Tengok skrin - intro LayanTv sedang dimainkan.'
+}
+
+$AnimKeys = @('window_animation_scale', 'transition_animation_scale', 'animator_duration_scale')
+
+# Animasi 0.5x buat peranti terasa lebih laju. Nilai asal disimpan untuk undo.
+function Do-Tweaks([switch]$Auto) {
+    if (-not (Require-Tv)) { return }
+    if (-not $Auto) {
+        Say 'Lajukan animasi sistem kepada 0.5x (peranti terasa lebih pantas).'
+        if (-not (Ask-Yes 'Teruskan?')) { return }
+    }
+    $bfile = New-Backup 'tweak'
+    foreach ($key in $AnimKeys) {
+        $old = (Tv "settings get global $key").Trim()
+        if (-not $old) { $old = 'null' }
+        Add-Content -LiteralPath $bfile -Value "setting $key $old" -Encoding ASCII
+        Tv "settings put global $key 0.5" | Out-Null
+        Ok "${key}: $old -> 0.5"
+    }
 }
 
 function Do-Intro {
@@ -497,9 +565,10 @@ function Do-Auto {
     Say ''
     Say '================== Setup LayanTv ==================='
     Say ' Skrip ini akan:'
-    Say '   1. Sambung ke TV anda'
+    Say '   1. Sambung ke TV atau tablet anda'
     Say '   2. Matikan bloatware & app iklan'
-    Say '   3. Pasang home screen baru + intro LayanTv'
+    Say '   3. Lajukan animasi sistem'
+    Say '   4. Pasang home screen LayanTv + intro'
     Say ' Semua boleh di-undo dari menu penuh.'
     Say '===================================================='
     if (-not (Ask-Yes 'Mula sekarang?')) { Show-Menu; return }
@@ -507,6 +576,7 @@ function Do-Auto {
         if (-not (Ask-Yes 'Cuba sambung lagi?')) { Say 'Dibatalkan.'; return }
     }
     Do-Debloat -Auto
+    Do-Tweaks -Auto
     Do-InstallLauncher -Auto
     Say ''
     Say '===================================================='
@@ -530,6 +600,7 @@ function Show-Menu {
         Say '  6) Imbas senarai app (untuk tanya AI)'
         Say '  7) Pulih kecemasan'
         Say '  8) Main intro LayanTv'
+        Say '  9) Lajukan animasi sistem'
         Say '  0) Keluar'
         $choice = Read-Host 'Pilihan'
         switch ($choice) {
@@ -541,6 +612,7 @@ function Show-Menu {
             '6' { Do-Scan }
             '7' { Do-Emergency }
             '8' { Do-Intro }
+            '9' { Do-Tweaks }
             '0' { exit 0 }
             default { Say 'Pilihan tak sah.' }
         }

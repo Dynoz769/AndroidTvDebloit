@@ -1,0 +1,9 @@
+# Senarai TAMBAHAN TABLET - pilihan, skrip akan tanya dulu.
+# Selamat dimatikan, tapi ada orang yang masih guna.
+
+com.google.android.apps.youtube.music                 # YouTube Music
+com.google.android.apps.tachyon                       # Google Meet / Duo
+com.google.android.apps.magazines                     # Google News
+com.microsoft.skydrive                                # Microsoft OneDrive (pra-pasang)
+com.microsoft.office.officehubrow                     # Microsoft Office / 365 (pra-pasang)
+com.linkedin.android                                  # LinkedIn (pra-pasang)

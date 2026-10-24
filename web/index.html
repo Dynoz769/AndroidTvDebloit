@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LayanTv Setup</title>
-  <meta name="description" content="Pilih model TV anda dan setup dalam beberapa minit: buang iklan & bloatware, home screen gaya Apple TV, intro LayanTv. Percuma, tanpa root, boleh undo.">
+  <meta name="description" content="Pilih model TV atau tablet anda dan setup dalam beberapa minit: buang iklan & bloatware, home screen gaya Apple TV, intro LayanTv. Percuma, tanpa root, boleh undo.">
   <meta name="theme-color" content="#0a0a0c">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,9 +20,9 @@
   <main>
     <section class="hero">
       <div class="hero-text">
-        <p class="eyebrow">Untuk Google TV &amp; Android TV</p>
-        <h1>TV anda, tanpa iklan. <em>Dalam beberapa minit.</em></h1>
-        <p class="lede">Pilih model TV anda, ikut 3 langkah, dan LayanTv akan buang bloatware, pasang home screen gaya Apple TV, dan mainkan intro setiap kali TV dibuka.</p>
+        <p class="eyebrow">Untuk Google TV, Android TV &amp; tablet Android</p>
+        <h1>TV dan tablet anda, tanpa iklan. <em>Dalam beberapa minit.</em></h1>
+        <p class="lede">Pilih model TV atau tablet anda, ikut 3 langkah, dan LayanTv akan buang bloatware, lajukan sistem, pasang home screen LayanTv, dan mainkan intro setiap kali peranti dibuka.</p>
         <ul class="ticks">
           <li>Percuma</li>
           <li>Tanpa root</li>
@@ -42,12 +42,16 @@
       <div class="step-head">
         <span class="step-num">1</span>
         <div>
-          <h2 id="h-langkah-1">Pilih TV anda</h2>
-          <p class="muted">Tak pasti? Lihat home screen TV: kalau ada tab <b>For you / Untuk anda</b> di atas, itu <b>Google TV</b>. Kalau ada barisan app dan <b>Play Next</b>, itu <b>Android TV</b>.</p>
+          <h2 id="h-langkah-1">Pilih peranti anda</h2>
+          <p class="muted">Untuk TV yang tak pasti: kalau home screen ada tab <b>For you / Untuk anda</b> di atas, itu <b>Google TV</b>. Kalau ada barisan app dan <b>Play Next</b>, itu <b>Android TV</b>.</p>
         </div>
       </div>
 
       <div class="picker">
+        <div class="kinds" role="group" aria-label="Jenis peranti">
+          <button type="button" class="kind" data-kind="tv">TV</button>
+          <button type="button" class="kind" data-kind="tablet">Tablet</button>
+        </div>
         <label class="search">
           <span class="visually-hidden">Cari model TV</span>
           <input id="search" type="search" placeholder="Cari jenama atau model, contoh: Sony, TCL, Mi Box" autocomplete="off">
@@ -62,8 +66,8 @@
       <div class="step-head">
         <span class="step-num">2</span>
         <div>
-          <h2 id="h-langkah-2">Hidupkan USB debugging di TV</h2>
-          <p class="muted" id="selected-tv">Pilih TV anda dahulu.</p>
+          <h2 id="h-langkah-2">Hidupkan USB debugging</h2>
+          <p class="muted" id="selected-tv">Pilih peranti anda dahulu.</p>
         </div>
       </div>
       <div class="unsupported-panel" id="unsupported" hidden></div>
@@ -74,19 +78,25 @@
           <p class="note" id="dev-note" hidden></p>
         </div>
         <div class="card">
-          <h3>Cari alamat IP TV</h3>
-          <ol>
-            <li>Buka <b>Settings → Network &amp; Internet</b>.</li>
-            <li>Pilih Wi-Fi (atau Ethernet) yang sedang disambung.</li>
-            <li>Catat <b>IP address</b>, contoh <code>192.168.1.20</code>.</li>
-          </ol>
+          <h3 id="connect-title">Cari alamat IP TV</h3>
+          <ol id="connect-steps"></ol>
           <label class="field">
-            <span>IP TV anda <span class="muted">(pilihan)</span></span>
+            <span><span id="ip-label">IP TV anda</span> <span class="muted">(pilihan)</span></span>
             <input id="ip" type="text" inputmode="decimal" placeholder="192.168.1.20" autocomplete="off" spellcheck="false">
           </label>
           <p class="field-error" id="ip-error" hidden>IP tak sah. Contoh yang betul: 192.168.1.20</p>
         </div>
       </div>
+      <details class="card rom" id="rom-card" hidden>
+        <summary>Nak tukar ke custom ROM penuh, contohnya LineageOS?</summary>
+        <p>LayanTv mengubah tablet anda <b>tanpa</b> menggantikan Android, jadi ia selamat untuk semua tablet dan boleh di-undo. Custom ROM penuh seperti <b>LineageOS</b> menggantikan seluruh sistem. Ia boleh jadi lebih laju pada tablet lama, tetapi:</p>
+        <ul>
+          <li>Hanya model tertentu ada ROM. Semak model anda di <a href="https://wiki.lineageos.org/devices/" rel="noopener">senarai peranti LineageOS</a>.</li>
+          <li>Bootloader perlu dibuka, jadi <b>semua data dipadam</b>, dan waranti hilang. Pada Samsung, Knox rosak secara kekal.</li>
+          <li>Tersilap langkah boleh menyebabkan tablet tak boleh dihidupkan.</li>
+        </ul>
+        <p>Jika model anda disokong, ikut panduan rasmi di halaman model tersebut. Untuk kebanyakan orang, LayanTv ialah pilihan yang lebih selamat.</p>
+      </details>
     </section>
 
     <section class="step is-locked" id="langkah-3" aria-labelledby="h-langkah-3">
@@ -94,7 +104,7 @@
         <span class="step-num">3</span>
         <div>
           <h2 id="h-langkah-3">Jalankan dari komputer</h2>
-          <p class="muted">Guna komputer yang disambung ke Wi-Fi yang sama dengan TV.</p>
+          <p class="muted" id="run-intro">Guna komputer yang disambung ke Wi-Fi yang sama dengan TV.</p>
         </div>
       </div>
 
@@ -132,8 +142,8 @@
         <h3>Apa yang berlaku seterusnya</h3>
         <ol>
           <li>Skrip muat turun alat ADB rasmi dari Google, kemudian sambung ke TV.</li>
-          <li>Skrin TV akan tanya <b>"Allow USB debugging?"</b>. Tick <b>Always allow</b>, kemudian tekan <b>Allow</b>.</li>
-          <li>Bloatware dimatikan, home screen baru dipasang, dan intro LayanTv dimainkan di TV.</li>
+          <li>Skrin TV atau tablet akan tanya <b>"Allow USB debugging?"</b>. Tick <b>Always allow</b>, kemudian tekan <b>Allow</b>.</li>
+          <li>Bloatware dimatikan, animasi sistem dilajukan, home screen LayanTv dipasang, dan intro dimainkan.</li>
         </ol>
         <p class="muted">Semuanya mengambil masa 2–5 minit. Setiap perubahan disimpan dalam backup dan boleh di-undo.</p>
       </div>
@@ -169,8 +179,8 @@
         <p>Jalankan semula arahan yang sama dan jawab <b>n</b> bila ditanya "Mula sekarang?". Menu penuh akan dibuka. Pilih <b>5</b> untuk kembali ke home screen asal, dan <b>4</b> untuk hidupkan semula app yang dimatikan. Di Windows, anda juga boleh klik dua kali <code>debloat.bat</code> dalam folder <code>AndroidTvDebloit</code> di folder pengguna anda.</p>
       </details>
       <details>
-        <summary>TV saya tiada dalam senarai.</summary>
-        <p>Pilih <b>Google TV lain</b> atau <b>Android TV lain</b> di bawah "Lain-lain". Skrip akan kesan jenama TV secara automatik dan guna senarai umum yang selamat untuk semua TV.</p>
+        <summary>TV atau tablet saya tiada dalam senarai.</summary>
+        <p>Pilih <b>Google TV lain</b>, <b>Android TV lain</b> atau <b>Tablet Android lain</b> di bawah "Lain-lain". Skrip akan kesan jenama peranti secara automatik dan guna senarai umum yang selamat.</p>
       </details>
       <details>
         <summary>Boleh guna untuk Samsung atau LG?</summary>

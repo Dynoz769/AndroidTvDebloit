@@ -1,0 +1,13 @@
+# Senarai tablet XIAOMI / REDMI / POCO (MIUI / HyperOS).
+# Pakej MSA dan analytics ialah sumber utama iklan dalam MIUI.
+
+com.miui.msa.global                                   # MSA - servis iklan sistem MIUI
+com.miui.analytics                                    # Analytics MIUI
+com.miui.daemon                                       # Pengumpul data MIUI
+com.xiaomi.mipicks                                    # GetApps (kedai app dengan iklan)
+com.miui.hybrid                                       # Quick Apps
+com.miui.android.fashiongallery                       # Glance / Wallpaper Carousel (iklan skrin kunci)
+com.xiaomi.glgm                                       # Games (pusat permainan)
+com.miui.bugreport                                    # Laporan bug
+com.miui.videoplayer                                  # Mi Video
+com.miui.player                                       # Mi Music

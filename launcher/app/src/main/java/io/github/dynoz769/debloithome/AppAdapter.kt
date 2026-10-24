@@ -29,6 +29,8 @@ class AppAdapter(
     private val onOpen: (Tile) -> Unit,
     private val onOptions: (Tile) -> Unit,
     private val onFocused: (Tile) -> Unit = {},
+    // Touch layout for tablets: icon and label instead of TV banners.
+    private val compact: Boolean = false,
 ) : RecyclerView.Adapter<AppAdapter.Holder>() {
 
     var tiles: List<Tile> = emptyList()
@@ -51,7 +53,7 @@ class AppAdapter(
     override fun getItemId(position: Int) = tiles[position].key.hashCode().toLong()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_app, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(if (compact) R.layout.item_app_icon else R.layout.item_app, parent, false)
         view.clipToOutline = true
         val holder = Holder(view)
         val focusLift = parent.resources.displayMetrics.density * 12
@@ -89,7 +91,7 @@ class AppAdapter(
         when (val tile = tiles[position]) {
             is Tile.App -> {
                 val banner = tile.entry.banner
-                if (banner != null) {
+                if (banner != null && !compact) {
                     holder.banner.setImageDrawable(banner)
                     holder.banner.visibility = View.VISIBLE
                     holder.iconGroup.visibility = View.GONE

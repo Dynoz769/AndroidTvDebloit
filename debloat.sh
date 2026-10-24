@@ -23,6 +23,7 @@ SERIAL=""
 BRAND=""
 MODEL=""
 ANDROID_VER=""
+DEVICE="tv"   # tv / tablet
 
 AUTO=0
 FORCE_BRAND=""
@@ -69,6 +70,9 @@ is_protected() {
     com.android.providers.*|com.android.inputmethod.*|com.google.android.inputmethod.*|\
     com.android.networkstack*|com.google.android.networkstack*|\
     com.google.android.tv.remote.service|com.google.android.tvsetup|\
+    com.sec.android.app.launcher|com.miui.home|com.android.launcher|com.android.launcher3|\
+    com.google.android.apps.nexuslauncher|com.huawei.android.launcher|com.oppo.launcher|\
+    com.samsung.android.honeyboard|com.google.android.apps.tablet.launcher|\
     "$LAUNCHER_PKG")
       return 0 ;;
   esac
@@ -128,6 +132,19 @@ load_tv_info() {
   [ "$(lower "$brand")" != "$(lower "$maker")" ] && BRAND="$maker $brand"
   MODEL="$(prop ro.product.model)"
   ANDROID_VER="$(prop ro.build.version.release)"
+  DEVICE="tablet"
+  case "$(tv pm list features)" in *android.software.leanback*) DEVICE="tv" ;; esac
+}
+
+device_kind() {
+  if [ "$DEVICE" = "tablet" ]; then printf 'Tablet'
+  elif is_google_tv; then printf 'Google TV'
+  else printf 'Android TV'; fi
+}
+
+# Peranti yang disambung dengan kabel USB (siri tanpa ':').
+usb_device() {
+  "$ADB" devices 2>/dev/null | tr -d '\r' | awk 'NR > 1 && $2 == "device" && $1 !~ /:/ { print $1; exit }'
 }
 
 adb_connect() { # ip:port
@@ -154,8 +171,20 @@ connect_tv() {
   find_adb || return 1
   local last="" ip state i
   [ -f "$IP_FILE" ] && last="$(tr -d '[:space:]' < "$IP_FILE")"
+  local usb
+  usb="$(usb_device)"
+  if [ -z "$PRESET_IP" ] && [ -n "$usb" ]; then
+    if [ "$AUTO" -eq 1 ] || ask_yes "Jumpa peranti melalui kabel USB ($usb). Guna peranti ini?"; then
+      SERIAL="$usb"
+      load_tv_info
+      ok "Bersambung (USB): $BRAND / $MODEL (Android $ANDROID_VER)"
+      info "Jenis: $(device_kind)"
+      return 0
+    fi
+  fi
   say ""
-  say "Cari IP TV di: Settings > Network & Internet > (Wi-Fi/Ethernet anda) > IP address"
+  say "Sambung tablet dengan kabel USB, atau guna Wi-Fi."
+  say "Cari IP di: Settings > Network & Internet (atau Wi-Fi) > rangkaian anda > IP address"
   if [ -n "$PRESET_IP" ]; then
     ip="$PRESET_IP"
     PRESET_IP=""
@@ -189,7 +218,7 @@ connect_tv() {
         SERIAL="$ip"
         load_tv_info
         ok "Bersambung: $BRAND / $MODEL (Android $ANDROID_VER)"
-        if is_google_tv; then info "Jenis: Google TV"; else info "Jenis: Android TV"; fi
+        info "Jenis: $(device_kind)"
         return 0 ;;
       *unauthorized*)
         [ "$i" = 1 ] && say "  >> Lihat skrin TV: tick 'Always allow' dan tekan 'Allow' / 'Benarkan'." ;;
@@ -241,9 +270,13 @@ disable_pkg() { # pakej fail_backup
   return 1
 }
 
-restore_pkg() { # tindakan pakej
+restore_pkg() { # tindakan pakej [nilai]
   local out
   case "$1" in
+    setting)
+      if [ "${3:-null}" = "null" ]; then tv settings delete global "$2" >/dev/null; else tv settings put global "$2" "$3" >/dev/null; fi
+      ok "Tetapan $2 dipulihkan (${3:-null})"
+      return 0 ;;
     disable)
       out="$(tv pm enable "$2")"
       case "$out" in *"new state: enabled"*|*"new state: default"*) ok "$2 (dihidupkan)"; return 0 ;; esac ;;
@@ -258,9 +291,9 @@ restore_pkg() { # tindakan pakej
 }
 
 restore_backup() { # fail_backup ; pulihkan dari bawah ke atas
-  local f="$1" action pkg errors=0
-  while read -r action pkg; do
-    case "$action" in disable|uninstall) restore_pkg "$action" "$pkg" || errors=$((errors + 1)) ;; esac
+  local f="$1" action pkg value errors=0
+  while read -r action pkg value; do
+    case "$action" in disable|uninstall|setting) restore_pkg "$action" "$pkg" "$value" || errors=$((errors + 1)) ;; esac
   done < <(awk '{ a[NR] = $0 } END { for (i = NR; i > 0; i--) print a[i] }' "$f")
   if [ "$errors" -eq 0 ]; then
     mkdir -p "$BACKUP_DIR/dipulihkan"
@@ -274,16 +307,18 @@ restore_backup() { # fail_backup ; pulihkan dari bawah ke atas
 
 do_debloat() { # [auto]
   require_tv || return
-  local auto="${1:-}" files=("$LIST_DIR/umum.txt") f key brandlc enabled
+  local auto="${1:-}" prefix="" extra="YouTube Kids, YouTube Music, Ambient mode, Meet" f key brandlc enabled
+  [ "$DEVICE" = "tablet" ] && { prefix="tablet-"; extra="YouTube Music, Meet, OneDrive, Office"; }
+  local files=("$LIST_DIR/${prefix}umum.txt")
   brandlc="$(lower "$BRAND $FORCE_BRAND")"
-  for f in "$LIST_DIR"/jenama-*.txt; do
+  for f in "$LIST_DIR/${prefix}"jenama-*.txt; do
     [ -e "$f" ] || continue
-    key="$(basename "$f" .txt)"; key="${key#jenama-}"
+    key="$(basename "$f" .txt)"; key="${key#"${prefix}"jenama-}"
     case "$brandlc" in *"$key"*) files+=("$f"); info "Guna senarai jenama: $key" ;; esac
   done
   files+=("$LIST_DIR/saya.txt")
-  if [ -z "$auto" ] && ask_yes "Termasuk senarai TAMBAHAN (YouTube Kids, YouTube Music, Ambient mode, Meet)?"; then
-    files+=("$LIST_DIR/tambahan.txt")
+  if [ -z "$auto" ] && ask_yes "Termasuk senarai TAMBAHAN ($extra)?"; then
+    files+=("$LIST_DIR/${prefix}tambahan.txt")
   fi
 
   enabled="$(pkgs_enabled)"
@@ -332,9 +367,9 @@ do_undo() {
   if [ "${#files[@]}" -eq 0 ]; then say "Tiada backup untuk dipulihkan."; return; fi
   say ""; say "Backup yang ada (terbaru di atas):"
   for i in "${!files[@]}"; do
-    printf '  %d. %s  [%s, %s app]\n' "$((i + 1))" "$(basename "${files[$i]}")" \
+    printf '  %d. %s  [%s, %s perubahan]\n' "$((i + 1))" "$(basename "${files[$i]}")" \
       "$(grep -m1 '^# TV:' "${files[$i]}" | sed 's/^# TV: //')" \
-      "$(grep -cE '^(disable|uninstall) ' "${files[$i]}")"
+      "$(grep -cE '^(disable|uninstall|setting) ' "${files[$i]}")"
   done
   read -r -p "Pilih nombor backup untuk dipulihkan [1], atau 'a' untuk semua: " reply || return
   reply="${reply:-1}"
@@ -351,6 +386,9 @@ do_undo() {
 do_install_launcher() { # [auto]
   require_tv || return
   local auto="${1:-}" apk="$LAUNCHER_APK" out
+  if [ "$DEVICE" = "tablet" ] && [ -z "$auto" ]; then
+    ask_yes "Pasang home screen LayanTv pada tablet ini?" || return
+  fi
   if [ ! -f "$apk" ]; then
     say "Muat turun DebloitHome.apk dari GitHub..."
     if ! curl -fL -o "$apk" "$LAUNCHER_URL"; then
@@ -387,7 +425,29 @@ do_install_launcher() { # [auto]
   out="$(tv cmd package set-home-activity "$LAUNCHER_ACTIVITY")"
   case "$out" in *Success*) ok "LayanTv ditetapkan sebagai home" ;; *) info "Pilih LayanTv jika TV tanya home mana nak guna." ;; esac
   tv am start -n "$LAUNCHER_ACTIVITY" --ez intro true >/dev/null
-  say ""; say "Siap! Tengok TV - intro LayanTv sedang dimainkan."
+  if [ "$DEVICE" = "tablet" ]; then
+    info "Home asal tablet tidak dimatikan. Tukar balik bila-bila masa di Settings > Apps > Default apps > Home."
+  fi
+  say ""; say "Siap! Tengok skrin - intro LayanTv sedang dimainkan."
+}
+
+ANIM_KEYS="window_animation_scale transition_animation_scale animator_duration_scale"
+
+# Animasi 0.5x buat peranti terasa lebih laju. Nilai asal disimpan untuk undo.
+do_tweaks() { # [auto]
+  require_tv || return
+  local auto="${1:-}" key old bfile
+  if [ -z "$auto" ]; then
+    say "Lajukan animasi sistem kepada 0.5x (peranti terasa lebih pantas)."
+    ask_yes "Teruskan?" || return
+  fi
+  bfile="$(new_backup tweak)"
+  for key in $ANIM_KEYS; do
+    old="$(tv settings get global "$key" | tr -d '[:space:]')"
+    printf 'setting %s %s\n' "$key" "${old:-null}" >> "$bfile"
+    tv settings put global "$key" 0.5 >/dev/null
+    ok "$key: ${old:-null} -> 0.5"
+  done
 }
 
 do_intro() {
@@ -470,9 +530,10 @@ do_auto() {
   say ""
   say "================== Setup LayanTv ==================="
   say " Skrip ini akan:"
-  say "   1. Sambung ke TV anda"
+  say "   1. Sambung ke TV atau tablet anda"
   say "   2. Matikan bloatware & app iklan"
-  say "   3. Pasang home screen baru + intro LayanTv"
+  say "   3. Lajukan animasi sistem"
+  say "   4. Pasang home screen LayanTv + intro"
   say " Semua boleh di-undo dari menu penuh."
   say "===================================================="
   ask_yes "Mula sekarang?" || { main_menu; return; }
@@ -480,6 +541,7 @@ do_auto() {
     ask_yes "Cuba sambung lagi?" || { say "Dibatalkan."; return; }
   done
   do_debloat auto
+  do_tweaks auto
   do_install_launcher auto
   say ""
   say "===================================================="
@@ -504,6 +566,7 @@ main_menu() {
     say "  6) Imbas senarai app (untuk tanya AI)"
     say "  7) Pulih kecemasan"
     say "  8) Main intro LayanTv"
+    say "  9) Lajukan animasi sistem"
     say "  0) Keluar"
     read -r -p "Pilihan: " choice || exit 0
     case "$choice" in
@@ -515,6 +578,7 @@ main_menu() {
       6) do_scan ;;
       7) do_emergency ;;
       8) do_intro ;;
+      9) do_tweaks ;;
       0|q|Q) exit 0 ;;
       *) say "Pilihan tak sah." ;;
     esac

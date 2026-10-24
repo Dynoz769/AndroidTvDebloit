@@ -1,0 +1,15 @@
+# Senarai tablet SAMSUNG (Galaxy Tab, One UI).
+
+com.samsung.android.bixby.agent                       # Bixby Voice
+com.samsung.android.bixby.wakeup                      # Bixby wake-up
+com.samsung.android.app.spage                         # Samsung Free / Bixby Home (suapan iklan)
+com.samsung.android.visionintelligence                # Bixby Vision
+com.samsung.android.game.gamehome                     # Game Launcher
+com.samsung.android.game.gametools                    # Game Tools
+com.samsung.android.app.tips                          # Tips
+com.samsung.android.arzone                            # AR Zone
+com.samsung.android.aremoji                           # AR Emoji
+com.samsung.android.stickercenter                     # Sticker Center
+com.samsung.android.tvplus                            # Samsung TV Plus (iklan)
+com.samsung.sree                                      # Samsung Global Goals (iklan)
+com.samsung.android.kidsinstaller                     # Pemasang Samsung Kids
