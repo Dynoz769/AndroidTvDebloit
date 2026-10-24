@@ -1,4 +1,4 @@
-name: Bina DebloitHome
+name: Bina LayanTv
 
 on:
   push:
@@ -50,6 +50,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "v1.0.${{ github.run_number }}" ../DebloitHome.apk \
-            --title "DebloitHome v1.0.${{ github.run_number }}" \
-            --notes "Home screen gaya Apple TV untuk Android TV / Google TV. Pasang melalui menu 3 dalam debloat.sh / debloat.bat." \
+            --title "LayanTv v1.0.${{ github.run_number }}" \
+            --notes "Home screen LayanTv dan intro untuk Android TV / Google TV. Pasang melalui laman web LayanTv, atau menu 3 dalam debloat.sh / debloat.bat." \
             --latest
